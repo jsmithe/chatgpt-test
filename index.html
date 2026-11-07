@@ -1,40 +1,75 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#17112b">
-  <meta name="description" content="A tiny web page featuring a dancing kitten.">
-  <title>Dancing Kitten · ChatGPT Test Lab</title>
-  <style>
-    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; color: #fff4fb; background: radial-gradient(circle at 20% 15%, #57316d 0, transparent 35%), radial-gradient(circle at 85% 80%, #244b70 0, transparent 35%), #17112b; }
-    main { width: min(760px, 100%); text-align: center; padding: clamp(2rem, 6vw, 4rem); border: 1px solid #ffffff26; border-radius: 30px; background: #211a36df; box-shadow: 0 24px 80px #0007; }
-    .eyebrow { color: #f6a9d5; font-size: .78rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
-    h1 { margin: 1rem 0 .5rem; font-size: clamp(2.5rem, 8vw, 4.5rem); line-height: 1; letter-spacing: -.05em; }
-    p { color: #d6c8e2; font-size: 1.08rem; line-height: 1.7; }
-    .stage { min-height: 260px; display: grid; place-items: center; overflow: hidden; }
-    .kitten { font-size: clamp(7rem, 24vw, 12rem); line-height: 1; display: inline-block; transform-origin: 50% 85%; animation: dance .75s ease-in-out infinite alternate; filter: drop-shadow(0 18px 18px #0005); }
-    .sparkle { display: inline-block; color: #ffd3ef; font-size: 2rem; animation: twinkle 1s ease-in-out infinite alternate; }
-    .sparkle.left { margin-right: 1rem; } .sparkle.right { margin-left: 1rem; animation-delay: .4s; }
-    .note { margin-top: 1.5rem; color: #bbaacb; font-size: .9rem; }
-    @keyframes dance { from { transform: rotate(-13deg) translateY(5px) scale(1); } to { transform: rotate(13deg) translateY(-13px) scale(1.06); } }
-    @keyframes twinkle { from { opacity: .35; transform: scale(.7) rotate(-15deg); } to { opacity: 1; transform: scale(1.2) rotate(15deg); } }
-    @media (prefers-reduced-motion: reduce) { .kitten, .sparkle { animation: none; } }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#312e81">
+<title>Our TV Show Shelf</title>
+<style>
+:root{color-scheme:light;--ink:#24213a;--muted:#6f6b83;--paper:#fbfaff;--purple:#6554c0;--line:#e8e4f2}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#f4f0ff,#f9fbff 55%,#fff8ef);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:34px 20px 28px;background:linear-gradient(120deg,#39327f,#7462c9);color:white}
+.wrap{max-width:1000px;margin:auto;padding:0 18px}h1{font-size:clamp(2rem,5vw,3rem);margin:0 0 5px;letter-spacing:-.04em}header p{margin:0;color:#e8e4ff}
+main{padding:24px 0 60px}.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:20px;box-shadow:0 8px 28px #382b7010}
+h2{font-size:1.15rem;margin:0 0 14px}.kids{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field label{display:block;font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:5px}
+input,select,button{font:inherit}input,select{width:100%;border:1px solid #dcd7eb;border-radius:10px;padding:10px 11px;background:#fff;color:var(--ink)}
+.toolbar{display:grid;grid-template-columns:1fr 190px;gap:12px;margin-bottom:16px}
+.formgrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}.actions{display:flex;align-items:end}
+button{border:0;border-radius:10px;padding:11px 16px;background:var(--purple);color:white;font-weight:700;cursor:pointer}button:hover{filter:brightness(1.08)}button.secondary{background:#eeeafb;color:#51449e}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px}.card{border:1px solid var(--line);border-radius:15px;padding:16px;background:linear-gradient(160deg,#fff,#fcfbff)}
+.cardtop{display:flex;justify-content:space-between;gap:10px;align-items:start}.card h3{margin:0;font-size:1.08rem}.tag{background:#f0edff;color:#55469e;padding:4px 9px;border-radius:99px;font-size:.75rem;white-space:nowrap}
+.rating{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;margin-top:13px;font-size:.9rem}.stars{display:flex;gap:2px}.star{background:none;color:#d4cfe2;padding:0 2px;font-size:1.35rem;line-height:1}.star.on{color:#f3ad32}.average{margin-top:13px;padding-top:10px;border-top:1px solid var(--line);font-weight:700;display:flex;justify-content:space-between}.average small{font-weight:500;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:35px 10px}.foot{color:var(--muted);font-size:.82rem;text-align:center;margin-top:20px}
+@media(max-width:650px){.formgrid{grid-template-columns:1fr 1fr}.formgrid .wide{grid-column:1/-1}.toolbar{grid-template-columns:1fr}.kids{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <main>
-    <div class="eyebrow">ChatGPT Test Lab presents</div>
-    <h1>Dance, little kitten!</h1>
-    <p>A tiny bit of joy, powered by HTML and CSS.</p>
-    <div class="stage" role="img" aria-label="A cat face dancing from side to side with sparkles">
-      <span class="sparkle left" aria-hidden="true">✦</span>
-      <span class="kitten" aria-hidden="true">🐱</span>
-      <span class="sparkle right" aria-hidden="true">✦</span>
-    </div>
-    <p class="note">Keep the good vibes going. ✨</p>
-  </main>
+<header><div class="wrap"><h1>📺 Our TV Show Shelf</h1><p>A shared watchlist with a rating from each kid.</p></div></header>
+<main class="wrap">
+<section class="panel"><h2>Who's rating?</h2><div class="kids">
+<div class="field"><label for="kid1">Kid one</label><input id="kid1" value="Kid 1" maxlength="24"></div>
+<div class="field"><label for="kid2">Kid two</label><input id="kid2" value="Kid 2" maxlength="24"></div>
+</div></section>
+<section class="panel"><h2>Add a show</h2><form id="addForm" class="formgrid">
+<div class="field wide"><label for="title">Show title</label><input id="title" placeholder="e.g. The Magic School Bus" required maxlength="80"></div>
+<div class="field"><label for="category">Category</label><select id="category"><option>Animation</option><option>Adventure</option><option>Comedy</option><option>Educational</option><option>Nature</option><option>Fantasy</option><option>Other</option></select></div>
+<div class="actions"><button type="submit">＋ Add show</button></div>
+</form></section>
+<section class="panel"><h2>Our shows</h2><div class="toolbar"><input id="search" type="search" placeholder="Search shows…"><select id="filter"><option value="">All categories</option></select></div><div id="cards" class="cards"></div><p class="foot">Ratings are 1–5 stars. The average includes only kids who have rated that show.</p></section>
+</main>
+<script>
+const starter=[
+{title:"Bluey",category:"Animation",ratings:[5,5]},
+{title:"Wild Kratts",category:"Nature",ratings:[4,5]},
+{title:"Avatar: The Last Airbender",category:"Adventure",ratings:[5,4]},
+{title:"The Magic School Bus",category:"Educational",ratings:[4,0]},
+{title:"SpongeBob SquarePants",category:"Comedy",ratings:[3,4]},
+{title:"Pokémon",category:"Adventure",ratings:[0,5]}
+];
+const KEY="tv-show-shelf-v1";
+let state;try{state=JSON.parse(localStorage.getItem(KEY))||null}catch(e){state=null}
+if(!state)state={kids:["Kid 1","Kid 2"],shows:starter.map((s,i)=>({...s,id:i+1}))};
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(){
+$("kid1").value=state.kids[0];$("kid2").value=state.kids[1];
+const cats=[...new Set(state.shows.map(s=>s.category))].sort(),old=$("filter").value;
+$("filter").innerHTML='<option value="">All categories</option>'+cats.map(c=>'<option>'+escapeHTML(c)+'</option>').join("");$("filter").value=cats.includes(old)?old:"";
+const q=$("search").value.toLowerCase(),cat=$("filter").value;
+const shows=state.shows.filter(s=>s.title.toLowerCase().includes(q)&&(!cat||s.category===cat));
+$("cards").innerHTML=shows.length?shows.map(s=>{
+const rated=s.ratings.filter(n=>n>0),avg=rated.length?(rated.reduce((a,b)=>a+b,0)/rated.length).toFixed(1):"—";
+return '<article class="card"><div class="cardtop"><h3>'+escapeHTML(s.title)+'</h3><span class="tag">'+escapeHTML(s.category)+'</span></div>'+
+s.ratings.map((v,i)=>'<div class="rating"><span>'+escapeHTML(state.kids[i])+'</span><span class="stars" aria-label="'+(v||"Not rated")+' out of 5">'+[1,2,3,4,5].map(n=>'<button class="star '+(n<=v?"on":"")+'" data-id="'+s.id+'" data-kid="'+i+'" data-value="'+n+'" aria-label="Rate '+escapeHTML(s.title)+' '+n+' stars">★</button>').join("")+'</span></div>').join("")+
+'<div class="average"><span>Average rating</span><span>'+avg+(rated.length?'<small> / 5</small>':'')+'</span></div></article>';
+}).join(""):'<div class="empty">No shows found. Add one above to get started.</div>';
+}
+$("addForm").addEventListener("submit",e=>{e.preventDefault();const title=$("title").value.trim();if(!title)return;if(state.shows.some(s=>s.title.toLowerCase()===title.toLowerCase())){alert("That show is already on your list.");return}state.shows.push({id:Date.now(),title,category:$("category").value,ratings:[0,0]});$("title").value="";save();render()});
+["kid1","kid2"].forEach((id,i)=>$(id).addEventListener("change",()=>{state.kids[i]=$(id).value.trim()||"Kid "+(i+1);save();render()}));
+$("cards").addEventListener("click",e=>{const b=e.target.closest("button[data-id]");if(!b)return;const s=state.shows.find(x=>x.id===Number(b.dataset.id));if(!s)return;const i=Number(b.dataset.kid),v=Number(b.dataset.value);s.ratings[i]=s.ratings[i]===v?0:v;save();render()});
+$("search").addEventListener("input",render);$("filter").addEventListener("change",render);
+render();
+</script>
 </body>
 </html>
