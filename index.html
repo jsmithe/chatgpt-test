@@ -72,4 +72,5 @@ $("importButton").addEventListener("click",()=>$("importFile").click());
 $("importFile").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{const imported=validState(JSON.parse(await file.text()));if(!confirm("Replace the current list and ratings with "+imported.shows.length+" shows from "+file.name+"?"))return;state=imported;save();render();$("pickResult").textContent="";$("dataMessage").textContent="Imported "+state.shows.length+" shows successfully."}catch(err){alert("Could not import JSON: "+err.message)}finally{e.target.value=""}});
 $("pickButton").addEventListener("click",()=>{const min=Number($("threshold").value),eligible=state.shows.filter(s=>{const a=average(s);return a!==null&&a>=min});if(!eligible.length){$("pickResult").innerHTML='<div class="pickresult">No shows meet that rating yet.<small>Try a lower threshold or rate a few more shows.</small></div>';return}const chosen=eligible[Math.floor(Math.random()*eligible.length)],a=average(chosen);$("pickResult").innerHTML='<div class="pickresult">🍿 '+escapeHTML(chosen.title)+'<small>'+escapeHTML(chosen.category)+' · '+a.toFixed(1)+' / 5 average · '+eligible.length+' eligible '+(eligible.length===1?"show":"shows")+'</small></div>'});
 initialize().then(render);
-</script></body></html>
+</script><!-- GitHub Pages redeploy trigger: 2026-11-07 -->
+</body></html>
