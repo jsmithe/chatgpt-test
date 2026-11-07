@@ -1,0 +1,62 @@
+{
+  "kids": [
+    "Kid 1",
+    "Kid 2"
+  ],
+  "shows": [
+    {
+      "id": 1,
+      "title": "Bluey",
+      "category": "Animation",
+      "ratings": [
+        5,
+        5
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Wild Kratts",
+      "category": "Nature",
+      "ratings": [
+        4,
+        5
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Avatar: The Last Airbender",
+      "category": "Adventure",
+      "ratings": [
+        5,
+        4
+      ]
+    },
+    {
+      "id": 4,
+      "title": "The Magic School Bus",
+      "category": "Educational",
+      "ratings": [
+        4,
+        0
+      ]
+    },
+    {
+      "id": 5,
+      "title": "SpongeBob SquarePants",
+      "category": "Comedy",
+      "ratings": [
+        3,
+        4
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Pokémon",
+      "category": "Adventure",
+      "ratings": [
+        0,
+        5
+      ]
+    }
+  ]
+}
