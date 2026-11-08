@@ -11,7 +11,8 @@
       "ratings": [
         5,
         5
-      ]
+      ],
+      "watched": "Unwatched"
     },
     {
       "id": 2,
@@ -20,7 +21,8 @@
       "ratings": [
         4,
         5
-      ]
+      ],
+      "watched": "Unwatched"
     },
     {
       "id": 3,
@@ -29,7 +31,8 @@
       "ratings": [
         5,
         4
-      ]
+      ],
+      "watched": "Unwatched"
     },
     {
       "id": 4,
@@ -38,7 +41,8 @@
       "ratings": [
         4,
         0
-      ]
+      ],
+      "watched": "Unwatched"
     },
     {
       "id": 5,
@@ -47,7 +51,8 @@
       "ratings": [
         3,
         4
-      ]
+      ],
+      "watched": "Unwatched"
     },
     {
       "id": 6,
@@ -56,7 +61,8 @@
       "ratings": [
         0,
         5
-      ]
+      ],
+      "watched": "Unwatched"
     }
   ]
 }
