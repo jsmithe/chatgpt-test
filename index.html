@@ -19,6 +19,11 @@ button{border:0;border-radius:10px;padding:11px 16px;background:var(--purple);co
 .empty{text-align:center;color:var(--muted);padding:35px 10px}.foot{color:var(--muted);font-size:.82rem;text-align:center;margin-top:20px}.buttonrow{display:flex;gap:10px;flex-wrap:wrap}.picker{display:grid;grid-template-columns:minmax(130px,190px) 1fr;gap:12px;align-items:end}.pickresult{margin-top:14px;padding:16px;border-radius:12px;background:#f3f0ff;font-size:1.1rem;font-weight:700}.pickresult small{display:block;color:var(--muted);font-size:.85rem;font-weight:500}
 @media(max-width:650px){.formgrid{grid-template-columns:1fr 1fr}.formgrid .wide{grid-column:1/-1}.toolbar,.picker{grid-template-columns:1fr}.kids{grid-template-columns:1fr}}
 .catalog-result{display:flex;flex-direction:column;gap:10px}.catalog-result .catalog-overview{margin:0}.catalog-facts{display:grid;gap:8px;margin:8px 0}.catalog-facts div{display:grid;grid-template-columns:minmax(95px,125px) 1fr;gap:10px}.catalog-facts dt{font-weight:700;color:var(--muted)}.catalog-facts dd{margin:0}.catalog-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.catalog-actions button{font-size:.9rem;padding:8px 12px}.catalog-details{border-top:1px solid var(--line);padding-top:10px}.catalog-details[hidden]{display:none}.catalog-result .catalog-genres{margin:0}
+</style><style>
+.profile-controls{display:grid;grid-template-columns:minmax(150px,1fr) minmax(150px,1fr) auto;gap:12px;align-items:end}
+.profile-buttons{display:flex;gap:8px;flex-wrap:wrap}.profile-buttons button{padding:10px 12px}
+@media(max-width:760px){.profile-controls{grid-template-columns:1fr 1fr}.profile-buttons{grid-column:1/-1}}
+@media(max-width:480px){.profile-controls{grid-template-columns:1fr}}
 </style></head>
 <body>
 <header><div class="wrap"><h1>📺 Our TV Show Shelf</h1><p>A shared watchlist with a rating from each kid.</p></div></header>
@@ -251,4 +256,4 @@ initialize().then(render);
   });
 })();
 </script>
-</body></html>
+<script src="./profiles.js"></script>\n</body></html>
