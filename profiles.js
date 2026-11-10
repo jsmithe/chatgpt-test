@@ -95,7 +95,7 @@
   }
 
   function parseProfileBackup(data) {
-    if (!data || data.format !== "tv-show-shelf-profiles" || data.version !== 1 ||
+    if (!data || (data.format !== "tv-show-shelf-profiles" && data.format !== undefined) || data.version !== 1 ||
         !Array.isArray(data.profiles) || data.profiles.length === 0) {
       throw new Error("This is not a supported profile backup.");
     }
@@ -109,7 +109,7 @@
         if (!show || typeof show.title !== "string" || !show.title.trim()) {
           throw new Error("A show in profile " + name + " has an invalid title (item " + (showIndex + 1) + ").");
         }
-        const rating = Number(show.rating);
+        const rating = show.rating === undefined && Array.isArray(show.ratings) ? Number(show.ratings[0]) || 0 : Number(show.rating ?? 0);
         if (!Number.isInteger(rating) || rating < 0 || rating > 5) {
           throw new Error("A rating in profile " + name + " must be a whole number from 0 to 5.");
         }
@@ -128,7 +128,7 @@
 
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(PROFILE_KEY) || "null"); } catch (_) {}
-  if (saved && saved.format === "tv-show-shelf-profiles" && saved.version === 1) {
+  if (saved && saved.version === 1 && (saved.format === "tv-show-shelf-profiles" || saved.format === undefined)) {
     try {
       profiles = parseProfileBackup(saved);
       activeId = profiles.some(profile => profile.id === saved.activeId) ? saved.activeId : profiles[0].id;
