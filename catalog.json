@@ -1,0 +1,221 @@
+[
+  {
+    "id": "mock-1",
+    "title": "Bluey",
+    "overview": "A six-year-old Blue Heeler and her family turn everyday moments into imaginative games.",
+    "firstAirYear": "2018",
+    "genres": [
+      "Animation",
+      "Family"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-2",
+    "title": "Wild Kratts",
+    "overview": "Two brothers explore wildlife and use creature powers to learn about animals.",
+    "firstAirYear": "2011",
+    "genres": [
+      "Nature",
+      "Adventure"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-3",
+    "title": "Avatar: The Last Airbender",
+    "overview": "A young airbender travels with friends to bring balance to a world divided by four nations.",
+    "firstAirYear": "2005",
+    "genres": [
+      "Adventure",
+      "Fantasy"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-4",
+    "title": "The Magic School Bus",
+    "overview": "Ms. Frizzle takes her students on extraordinary educational field trips.",
+    "firstAirYear": "1994",
+    "genres": [
+      "Educational",
+      "Animation"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-5",
+    "title": "SpongeBob SquarePants",
+    "overview": "A cheerful sea sponge has underwater adventures with his friends in Bikini Bottom.",
+    "firstAirYear": "1999",
+    "genres": [
+      "Comedy",
+      "Animation"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-6",
+    "title": "Pokémon",
+    "overview": "Trainers travel the world to befriend, train, and battle with Pokémon.",
+    "firstAirYear": "1997",
+    "genres": [
+      "Adventure",
+      "Animation"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-7",
+    "title": "The Wild Thornberrys",
+    "overview": "A family of wildlife filmmakers travels the world, while Eliza discovers she can talk to animals.",
+    "firstAirYear": "1998",
+    "genres": [
+      "Adventure",
+      "Nature"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-8",
+    "title": "Phineas and Ferb",
+    "overview": "Two inventive stepbrothers make the most of their summer vacation with ambitious projects.",
+    "firstAirYear": "2007",
+    "genres": [
+      "Comedy",
+      "Animation"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-9",
+    "title": "Gravity Falls",
+    "overview": "Twins spend the summer with their great-uncle and uncover mysteries in a strange Oregon town.",
+    "firstAirYear": "2012",
+    "genres": [
+      "Adventure",
+      "Comedy"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-10",
+    "title": "The Octonauts",
+    "overview": "A crew of animal explorers goes on underwater missions to help ocean creatures.",
+    "firstAirYear": "2010",
+    "genres": [
+      "Nature",
+      "Adventure"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-11",
+    "title": "Puffin Rock",
+    "overview": "A young puffin and her friends explore a beautiful island and learn about nature.",
+    "firstAirYear": "2015",
+    "genres": [
+      "Nature",
+      "Animation"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-12",
+    "title": "Hilda",
+    "overview": "A fearless girl discovers magical creatures and adventures in a world inspired by folklore.",
+    "firstAirYear": "2018",
+    "genres": [
+      "Fantasy",
+      "Adventure"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-13",
+    "title": "Wild Kratts: Creature Adventures",
+    "overview": "Chris and Martin use creature knowledge to help animals around the world.",
+    "firstAirYear": "2011",
+    "genres": [
+      "Nature",
+      "Educational"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-14",
+    "title": "The Amazing World of Gumball",
+    "overview": "Gumball and his family find absurd adventures in the town of Elmore.",
+    "firstAirYear": "2011",
+    "genres": [
+      "Comedy",
+      "Animation"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-15",
+    "title": "Steven Universe",
+    "overview": "A young hero learns about friendship, responsibility, and his unusual family.",
+    "firstAirYear": "2013",
+    "genres": [
+      "Fantasy",
+      "Adventure"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-16",
+    "title": "Molly of Denali",
+    "overview": "Molly and her friends solve problems and explore life in rural Alaska.",
+    "firstAirYear": "2019",
+    "genres": [
+      "Educational",
+      "Adventure"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-17",
+    "title": "Sesame Street",
+    "overview": "A friendly neighborhood helps children learn through stories, songs, and play.",
+    "firstAirYear": "1969",
+    "genres": [
+      "Educational",
+      "Comedy"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-18",
+    "title": "Wildlife SOS",
+    "overview": "Rescuers work to protect and care for animals in need.",
+    "firstAirYear": "2014",
+    "genres": [
+      "Nature"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-19",
+    "title": "DuckTales",
+    "overview": "Three adventurous nephews and their uncle search for treasure and solve mysteries.",
+    "firstAirYear": "2017",
+    "genres": [
+      "Adventure",
+      "Comedy"
+    ],
+    "posterUrl": null
+  },
+  {
+    "id": "mock-20",
+    "title": "The Creature Cases",
+    "overview": "Special agents Sam and Kit solve animal mysteries around the world.",
+    "firstAirYear": "2022",
+    "genres": [
+      "Nature",
+      "Educational"
+    ],
+    "posterUrl": null
+  }
+]
