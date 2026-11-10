@@ -18,6 +18,7 @@ button{border:0;border-radius:10px;padding:11px 16px;background:var(--purple);co
 .average{margin-top:13px;padding-top:10px;border-top:1px solid var(--line);font-weight:700;display:flex;justify-content:space-between}.average small{font-weight:500;color:var(--muted)}
 .empty{text-align:center;color:var(--muted);padding:35px 10px}.foot{color:var(--muted);font-size:.82rem;text-align:center;margin-top:20px}.buttonrow{display:flex;gap:10px;flex-wrap:wrap}.picker{display:grid;grid-template-columns:minmax(130px,190px) 1fr;gap:12px;align-items:end}.pickresult{margin-top:14px;padding:16px;border-radius:12px;background:#f3f0ff;font-size:1.1rem;font-weight:700}.pickresult small{display:block;color:var(--muted);font-size:.85rem;font-weight:500}
 @media(max-width:650px){.formgrid{grid-template-columns:1fr 1fr}.formgrid .wide{grid-column:1/-1}.toolbar,.picker{grid-template-columns:1fr}.kids{grid-template-columns:1fr}}
+.catalog-result{display:flex;flex-direction:column;gap:10px}.catalog-result .catalog-overview{margin:0}.catalog-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.catalog-actions button{font-size:.9rem;padding:8px 12px}.catalog-details{border-top:1px solid var(--line);padding-top:10px}.catalog-details[hidden]{display:none}.catalog-result .catalog-genres{margin:0}
 </style></head>
 <body>
 <header><div class="wrap"><h1>📺 Our TV Show Shelf</h1><p>A shared watchlist with a rating from each kid.</p></div></header>
@@ -115,21 +116,66 @@ initialize().then(render);
   const searchInput = document.getElementById("catalogSearch");
   const results = document.getElementById("catalogResults");
   const status = document.getElementById("catalogStatus");
-  const details = document.getElementById("catalogDetails");
   let searchVersion = 0;
-  let selectedShow = null;
+  let expandedId = null;
+  const detailsCache = new Map();
+
   function renderResults(shows) {
-    results.innerHTML = shows.length ? shows.map(show =>
-      '<article class="card"><div class="cardtop"><h3>'+escapeHTML(show.title)+'</h3><span class="tag">'+escapeHTML(show.firstAirYear)+'</span></div>'+
-      '<p>'+escapeHTML(show.overview)+'</p><p class="suggestion-note">'+show.genres.map(escapeHTML).join(" · ")+'</p>'+
-      '<button type="button" data-catalog-id="'+escapeHTML(show.id)+'">View details</button></article>'
-    ).join("") : '<p class="empty">No matching shows in the sample catalog.</p>';
+    results.innerHTML = shows.length ? shows.map(show => {
+      const expanded = String(show.id) === String(expandedId);
+      return '<article class="card catalog-result" data-catalog-result="'+escapeHTML(show.id)+'">' +
+        '<div class="cardtop"><h3>'+escapeHTML(show.title)+'</h3><span class="tag">'+escapeHTML(show.firstAirYear)+'</span></div>' +
+        '<p class="catalog-overview">'+escapeHTML(show.overview)+'</p>' +
+        '<p class="suggestion-note catalog-genres">'+show.genres.map(escapeHTML).join(" · ")+'</p>' +
+        '<div class="catalog-actions"><button type="button" class="secondary" data-catalog-toggle="'+escapeHTML(show.id)+'" aria-expanded="'+expanded+'">'+(expanded?'Hide details':'Show details')+'</button>' +
+        '<button type="button" data-catalog-add="'+escapeHTML(show.id)+'">＋ Add to our shows</button></div>' +
+        '<section class="catalog-details" data-catalog-details="'+escapeHTML(show.id)+'" '+(expanded?'':'hidden')+' aria-live="polite">'+
+        (expanded ? renderDetails(show) : '')+'</section></article>';
+    }).join("") : '<p class="empty">No matching shows in the sample catalog.</p>';
   }
+
+  function renderDetails(show) {
+    return '<h4>Show details</h4><p>'+escapeHTML(show.overview || 'No overview available.')+'</p>' +
+      '<p class="suggestion-note">First aired: '+escapeHTML(show.firstAirYear || 'Unknown')+' · '+(show.genres || []).map(escapeHTML).join(' · ')+'</p>';
+  }
+
+  async function expandResult(id) {
+    expandedId = String(id);
+    const resultCard = results.querySelector('[data-catalog-result="'+CSS.escape(expandedId)+'"]');
+    if (!resultCard) return;
+    const detailsPanel = resultCard.querySelector('[data-catalog-details]');
+    const toggle = resultCard.querySelector('[data-catalog-toggle]');
+    results.querySelectorAll('[data-catalog-details]').forEach(panel => {
+      const isCurrent = panel === detailsPanel;
+      panel.hidden = !isCurrent;
+      if (!isCurrent) panel.innerHTML = '';
+    });
+    results.querySelectorAll('[data-catalog-toggle]').forEach(button => {
+      const current = button === toggle;
+      button.setAttribute('aria-expanded',String(current));
+      button.textContent = current ? 'Hide details' : 'Show details';
+    });
+    if (detailsCache.has(expandedId)) {
+      detailsPanel.innerHTML = renderDetails(detailsCache.get(expandedId));
+      return;
+    }
+    detailsPanel.textContent = 'Loading details…';
+    try {
+      const show = await window.showCatalog.getShowDetails(id);
+      if (!show) throw new Error('Show details were not found.');
+      detailsCache.set(expandedId,show);
+      if (String(expandedId) === String(expandedId) && detailsPanel.isConnected && !detailsPanel.hidden) {
+        detailsPanel.innerHTML = renderDetails(show);
+      }
+    } catch (error) {
+      detailsPanel.textContent = error.message;
+    }
+  }
+
   searchInput.addEventListener("input", async function () {
     const version = ++searchVersion;
     const query = searchInput.value.trim();
-    selectedShow = null;
-    details.innerHTML = "";
+    expandedId = null;
     if (!query) { results.innerHTML = ""; status.textContent = "Enter a title or genre to search."; return; }
     status.textContent = "Searching sample catalog…";
     results.innerHTML = "";
@@ -145,26 +191,48 @@ initialize().then(render);
       results.innerHTML = '<p class="empty">'+escapeHTML(error.message)+' Try again in a moment.</p>';
     }
   });
+
   results.addEventListener("click", async function (event) {
-    const button = event.target.closest("button[data-catalog-id]");
-    if (!button) return;
-    try {
-      selectedShow = await window.showCatalog.getShowDetails(button.dataset.catalogId);
-      if (!selectedShow) throw new Error("Show details were not found.");
-      details.innerHTML = '<article class="card" style="margin-top:14px"><h3>'+escapeHTML(selectedShow.title)+'</h3><p>'+escapeHTML(selectedShow.overview)+'</p><p class="suggestion-note">First aired: '+escapeHTML(selectedShow.firstAirYear)+' · '+selectedShow.genres.map(escapeHTML).join(" · ")+'</p><button type="button" id="addCatalogShow">＋ Add to our shows</button></article>';
-    } catch (error) {
-      details.textContent = error.message;
-    }
-  });
-  details.addEventListener("click", function (event) {
-    if (event.target.id !== "addCatalogShow" || !selectedShow) return;
-    const category = selectedShow.genres.find(genre => ["Animation","Adventure","Comedy","Educational","Nature","Fantasy"].includes(genre)) || "Other";
-    const result = window.showShelf.addShow({ title: selectedShow.title, category });
-    if (!result.added) {
-      details.insertAdjacentHTML("beforeend", '<p class="suggestion-note">That show is already in your collection.</p>');
+    const toggle = event.target.closest("button[data-catalog-toggle]");
+    if (toggle) {
+      const id = toggle.dataset.catalogToggle;
+      if (String(expandedId) === String(id)) {
+        expandedId = null;
+        const card = toggle.closest('[data-catalog-result]');
+        card.querySelector('[data-catalog-details]').hidden = true;
+        card.querySelector('[data-catalog-details]').innerHTML = '';
+        toggle.setAttribute('aria-expanded','false');
+        toggle.textContent = 'Show details';
+        return;
+      }
+      await expandResult(id);
       return;
     }
-    details.insertAdjacentHTML("beforeend", '<p class="suggestion-note">Added to your collection.</p>');
+    const addButton = event.target.closest("button[data-catalog-add]");
+    if (!addButton) return;
+    try {
+      const show = await window.showCatalog.getShowDetails(addButton.dataset.catalogAdd);
+      if (!show) throw new Error("Show details were not found.");
+      const category = show.genres.find(genre => ["Animation","Adventure","Comedy","Educational","Nature","Fantasy"].includes(genre)) || "Other";
+      const result = window.showShelf.addShow({ title: show.title, category });
+      const card = addButton.closest('[data-catalog-result]');
+      let message = card.querySelector('.catalog-add-message');
+      if (!message) {
+        message = document.createElement('p');
+        message.className = 'suggestion-note catalog-add-message';
+        card.append(message);
+      }
+      message.textContent = result.added ? 'Added to your collection.' : 'That show is already in your collection.';
+    } catch (error) {
+      const card = addButton.closest('[data-catalog-result]');
+      let message = card.querySelector('.catalog-add-message');
+      if (!message) {
+        message = document.createElement('p');
+        message.className = 'suggestion-note catalog-add-message';
+        card.append(message);
+      }
+      message.textContent = error.message;
+    }
   });
 })();
 </script>
