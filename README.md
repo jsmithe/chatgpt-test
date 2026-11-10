@@ -7,16 +7,17 @@ The app is starting with a simple browser-based experience. The longer-term goal
 ## What the app does today
 
 - **Build a show collection:** Add TV shows with a title and category (Animation, Adventure, Comedy, Educational, Nature, Fantasy, or Other).
-- **Rate shows individually:** The current version supports ratings from two kids on a 1–5 star scale. The displayed average includes only ratings that have been entered.
+- **Manage kid profiles:** Create, rename, remove, and switch between kid profiles. Each profile has its own show collection, rating, and watch status.
+- **Rate shows individually:** Each profile rates its own shows on a 1–5 star scale. The displayed average includes only ratings that have been entered.
 - **Track watch status:** Mark a show as Unwatched, Watching, or Completed.
 - **Pick something to watch:** Randomly choose an eligible show using a configurable minimum average rating. Completed shows are excluded.
-- **Get collection-based suggestions:** Browse Family favorites, shows not rated by both kids, either kid's favorites, or Favorite categories. Choose how many suggestions to show.
+- **Get collection-based suggestions:** Browse a selected kid’s highest-rated shows, unrated shows, or favorite categories. Choose how many suggestions to show.
 - **Find and filter entries:** Search by title and filter the collection by category.
 - **Back up and restore data:** Export the collection to JSON or import a JSON backup. The app can also load an initial collection from `shows.json`.
 
 ## Current data and implementation
 
-The app is a client-side HTML, CSS, and JavaScript application. Collection data is saved in the browser's `localStorage`, so it is local to that browser/device; it is not currently synchronized through a shared database or account. JSON export/import provides a way to move or back up the collection. A `shows.json` file can provide initial data.
+The app is a client-side HTML, CSS, and JavaScript application. Collection data is saved in the browser's `localStorage`, so it is local to that browser/device; it is not currently synchronized through a shared database or account. JSON export/import provides a way to move or back up all profiles and their collections. New exports use the versioned `tv-show-shelf-profiles` format; imports also accept the previous two-kid JSON format and split its ratings into separate profiles. A `shows.json` file can provide initial data. On first launch after the profile update, the existing two-kid collection is migrated into one profile per kid.
 
 Recommendations today are based on shows already in the collection. The app does **not yet** fetch a catalog of new shows from an external service, and it does not currently support movies.
 
@@ -31,7 +32,7 @@ Evolve Our TV Show Shelf from a place to collect and rate shows into a personali
 - Discover worthwhile shows that are not already on the shelf.
 - Make recommendations understandable by showing why a show might be a good fit.
 
-The plan is incremental: preserve the existing collection and rating workflow while adding discovery capabilities and moving from the current fixed two-kid setup to flexible profiles.
+The plan is incremental: preserve the existing collection and rating workflow while adding discovery capabilities and building recommendations on top of flexible kid profiles.
 
 ## Roadmap
 
@@ -57,16 +58,9 @@ Integrate with an external TV catalog such as [TMDB](https://www.themoviedb.org/
 
 ### Phase 2 — Flexible kid profiles
 
-Replace the fixed two-kid setup with parent-managed profiles.
+**Implemented in PR #8.** Parents can create, rename, remove, and switch between profiles. Each profile owns its own collection, ratings, and watch status. The first launch migrates the existing two-kid list into separate profiles while preserving each kid’s ratings. Removing a profile requires confirmation, and at least one profile must remain.
 
-- Start with one kid profile by default.
-- Allow a parent to add additional kids as needed, as well as edit profile names.
-- Let the parent switch between kids' shelves.
-- Associate each show's entry and rating with the relevant kid, so one kid's collection and ratings do not affect another's.
-- Preserve existing collection data and migrate the current two-kid ratings carefully.
-- Decide how to handle a profile's data if a kid is removed (for example, archive it or confirm deletion).
-
-Profiles are family-managed within the app; individual kid logins are not part of this planned feature.
+Profiles are family-managed within the app; individual kid logins are not part of this feature.
 
 ### Phase 3 — Personalized recommendations
 
