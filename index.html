@@ -24,6 +24,13 @@ button{border:0;border-radius:10px;padding:11px 16px;background:var(--purple);co
 <main class="wrap">
 <section class="panel"><h2>Who's rating?</h2><div class="kids"><div class="field"><label for="kid1">Kid one</label><input id="kid1" value="Kid 1" maxlength="24"></div><div class="field"><label for="kid2">Kid two</label><input id="kid2" value="Kid 2" maxlength="24"></div></div></section>
 <section class="panel"><h2>Add a show</h2><form id="addForm" class="formgrid"><div class="field wide"><label for="title">Show title</label><input id="title" placeholder="e.g. The Magic School Bus" required maxlength="80"></div><div class="field"><label for="category">Category</label><select id="category"><option>Animation</option><option>Adventure</option><option>Comedy</option><option>Educational</option><option>Nature</option><option>Fantasy</option><option>Other</option></select></div><div class="actions"><button type="submit">＋ Add show</button></div></form></section>
+<section class="panel" id="catalogPanel">
+  <h2>🔎 Find a show to add</h2>
+  <p>Search the sample catalog. These results are local demo data; no external service or API key is used.</p>
+  <div class="toolbar"><input id="catalogSearch" type="search" placeholder="Search titles, descriptions, or genres…" autocomplete="off"><span id="catalogStatus" class="foot" aria-live="polite"></span></div>
+  <div id="catalogResults" class="cards"></div>
+  <div id="catalogDetails" aria-live="polite"></div>
+</section>
 <section class="panel"><h2>Pick something to watch</h2><div class="picker"><div class="field"><label for="threshold">Minimum average rating</label><select id="threshold"><option value="0">Any rated show</option><option value="3">3 stars or higher</option><option value="3.5">3.5 stars or higher</option><option value="4" selected>4 stars or higher</option><option value="4.5">4.5 stars or higher</option><option value="5">5 stars only</option></select></div><button id="pickButton" type="button">🎲 Pick a random show</button></div><div id="pickResult" aria-live="polite"></div></section>
 
 <section class="panel"><h2>💡 Suggestions</h2><p>Recommendations based on your kids’ ratings and watch status.</p><div class="toolbar"><select id="suggestMode"><option value="family">Family favorites</option><option value="discover">Not rated by both kids</option><option value="kid1">Kid 1 favorites</option><option value="kid2">Kid 2 favorites</option><option value="category">Favorite categories</option></select><select id="suggestCount"><option>3</option><option selected>5</option><option>10</option></select></div><div id="suggestions" class="cards"></div></section>
@@ -87,8 +94,78 @@ initialize().then(render);
  document.getElementById("suggestMode").addEventListener("change",renderSuggestions);document.getElementById("suggestCount").addEventListener("change",renderSuggestions);
  const oldSave=save;save=function(){state.shows.forEach(s=>{if(!s.watched)s.watched="Unwatched"});oldSave()};
  const oldInit=initialize;initialize=function(){return oldInit().then(()=>{state.shows.forEach(s=>{if(!s.watched)s.watched="Unwatched"});save();originalRender();render();renderSuggestions()})};
+ window.showShelf = {
+  addShow(show) {
+   if(!show||typeof show.title!=="string"||!show.title.trim()) throw new Error("A show title is required.");
+   if(state.shows.some(item=>item.title.toLocaleLowerCase()===show.title.trim().toLocaleLowerCase())) return {added:false,reason:"duplicate"};
+   state.shows.push({id:Date.now(),title:show.title.trim(),category:show.category||"Other",ratings:[0,0],watched:"Unwatched"});
+   save();
+   render();
+   renderSuggestions();
+   return {added:true};
+  }
+ };
  const add=document.getElementById("addForm");add.addEventListener("submit",()=>setTimeout(renderSuggestions,0));
  initialize();
+})();
+</script>
+<script src="./catalog.js"></script>
+<script>
+(function () {
+  const searchInput = document.getElementById("catalogSearch");
+  const results = document.getElementById("catalogResults");
+  const status = document.getElementById("catalogStatus");
+  const details = document.getElementById("catalogDetails");
+  let searchVersion = 0;
+  let selectedShow = null;
+  function renderResults(shows) {
+    results.innerHTML = shows.length ? shows.map(show =>
+      '<article class="card"><div class="cardtop"><h3>'+escapeHTML(show.title)+'</h3><span class="tag">'+escapeHTML(show.firstAirYear)+'</span></div>'+
+      '<p>'+escapeHTML(show.overview)+'</p><p class="suggestion-note">'+show.genres.map(escapeHTML).join(" · ")+'</p>'+
+      '<button type="button" data-catalog-id="'+escapeHTML(show.id)+'">View details</button></article>'
+    ).join("") : '<p class="empty">No matching shows in the sample catalog.</p>';
+  }
+  searchInput.addEventListener("input", async function () {
+    const version = ++searchVersion;
+    const query = searchInput.value.trim();
+    selectedShow = null;
+    details.innerHTML = "";
+    if (!query) { results.innerHTML = ""; status.textContent = "Enter a title or genre to search."; return; }
+    status.textContent = "Searching sample catalog…";
+    results.innerHTML = "";
+    try {
+      await new Promise(resolve => setTimeout(resolve, 250));
+      const matches = await window.showCatalog.searchShows(query);
+      if (version !== searchVersion) return;
+      renderResults(matches);
+      status.textContent = matches.length+" result"+(matches.length===1?"":"s");
+    } catch (error) {
+      if (version !== searchVersion) return;
+      status.textContent = "Catalog unavailable";
+      results.innerHTML = '<p class="empty">'+escapeHTML(error.message)+' Try again in a moment.</p>';
+    }
+  });
+  results.addEventListener("click", async function (event) {
+    const button = event.target.closest("button[data-catalog-id]");
+    if (!button) return;
+    try {
+      selectedShow = await window.showCatalog.getShowDetails(button.dataset.catalogId);
+      if (!selectedShow) throw new Error("Show details were not found.");
+      details.innerHTML = '<article class="card" style="margin-top:14px"><h3>'+escapeHTML(selectedShow.title)+'</h3><p>'+escapeHTML(selectedShow.overview)+'</p><p class="suggestion-note">First aired: '+escapeHTML(selectedShow.firstAirYear)+' · '+selectedShow.genres.map(escapeHTML).join(" · ")+'</p><button type="button" id="addCatalogShow">＋ Add to our shows</button></article>';
+    } catch (error) {
+      details.textContent = error.message;
+    }
+  });
+  details.addEventListener("click", function (event) {
+    if (event.target.id !== "addCatalogShow" || !selectedShow) return;
+    const category = selectedShow.genres.find(genre => ["Animation","Adventure","Comedy","Educational","Nature","Fantasy"].includes(genre)) || "Other";
+    const result = window.showShelf.addShow({ title: selectedShow.title, category });
+    if (!result.added) {
+      details.insertAdjacentHTML("beforeend", '<p class="suggestion-note">That show is already in your collection.</p>');
+      return;
+    }
+    details.insertAdjacentHTML("beforeend", '<p class="suggestion-note">Added to your collection.</p>');
+  });
 })();
 </script>
 </body></html>
