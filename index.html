@@ -94,6 +94,17 @@ initialize().then(render);
  document.getElementById("suggestMode").addEventListener("change",renderSuggestions);document.getElementById("suggestCount").addEventListener("change",renderSuggestions);
  const oldSave=save;save=function(){state.shows.forEach(s=>{if(!s.watched)s.watched="Unwatched"});oldSave()};
  const oldInit=initialize;initialize=function(){return oldInit().then(()=>{state.shows.forEach(s=>{if(!s.watched)s.watched="Unwatched"});save();originalRender();render();renderSuggestions()})};
+ window.showShelf = {
+  addShow(show) {
+   if(!show||typeof show.title!=="string"||!show.title.trim()) throw new Error("A show title is required.");
+   if(state.shows.some(item=>item.title.toLocaleLowerCase()===show.title.trim().toLocaleLowerCase())) return {added:false,reason:"duplicate"};
+   state.shows.push({id:Date.now(),title:show.title.trim(),category:show.category||"Other",ratings:[0,0],watched:"Unwatched"});
+   save();
+   render();
+   renderSuggestions();
+   return {added:true};
+  }
+ };
  const add=document.getElementById("addForm");add.addEventListener("submit",()=>setTimeout(renderSuggestions,0));
  initialize();
 })();
@@ -147,15 +158,12 @@ initialize().then(render);
   });
   details.addEventListener("click", function (event) {
     if (event.target.id !== "addCatalogShow" || !selectedShow) return;
-    if (state.shows.some(show => show.title.toLocaleLowerCase() === selectedShow.title.toLocaleLowerCase())) {
+    const category = selectedShow.genres.find(genre => ["Animation","Adventure","Comedy","Educational","Nature","Fantasy"].includes(genre)) || "Other";
+    const result = window.showShelf.addShow({ title: selectedShow.title, category });
+    if (!result.added) {
       details.insertAdjacentHTML("beforeend", '<p class="suggestion-note">That show is already in your collection.</p>');
       return;
     }
-    const category = selectedShow.genres.find(genre => ["Animation","Adventure","Comedy","Educational","Nature","Fantasy"].includes(genre)) || "Other";
-    state.shows.push({ id: Date.now(), title: selectedShow.title, category, ratings: [0,0], watched: "Unwatched" });
-    save();
-    render();
-    if (typeof renderSuggestions === "function") renderSuggestions();
     details.insertAdjacentHTML("beforeend", '<p class="suggestion-note">Added to your collection.</p>');
   });
 })();
