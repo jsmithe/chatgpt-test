@@ -19,6 +19,11 @@ button{border:0;border-radius:10px;padding:11px 16px;background:var(--purple);co
 .empty{text-align:center;color:var(--muted);padding:35px 10px}.foot{color:var(--muted);font-size:.82rem;text-align:center;margin-top:20px}.buttonrow{display:flex;gap:10px;flex-wrap:wrap}.picker{display:grid;grid-template-columns:minmax(130px,190px) 1fr;gap:12px;align-items:end}.pickresult{margin-top:14px;padding:16px;border-radius:12px;background:#f3f0ff;font-size:1.1rem;font-weight:700}.pickresult small{display:block;color:var(--muted);font-size:.85rem;font-weight:500}
 @media(max-width:650px){.formgrid{grid-template-columns:1fr 1fr}.formgrid .wide{grid-column:1/-1}.toolbar,.picker{grid-template-columns:1fr}.kids{grid-template-columns:1fr}}
 .catalog-result{display:flex;flex-direction:column;gap:10px}.catalog-result .catalog-overview{margin:0}.catalog-facts{display:grid;gap:8px;margin:8px 0}.catalog-facts div{display:grid;grid-template-columns:minmax(95px,125px) 1fr;gap:10px}.catalog-facts dt{font-weight:700;color:var(--muted)}.catalog-facts dd{margin:0}.catalog-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.catalog-actions button{font-size:.9rem;padding:8px 12px}.catalog-details{border-top:1px solid var(--line);padding-top:10px}.catalog-details[hidden]{display:none}.catalog-result .catalog-genres{margin:0}
+</style><style>
+.profile-controls{display:grid;grid-template-columns:minmax(150px,1fr) minmax(150px,1fr) auto;gap:12px;align-items:end}
+.profile-buttons{display:flex;gap:8px;flex-wrap:wrap}.profile-buttons button{padding:10px 12px}
+@media(max-width:760px){.profile-controls{grid-template-columns:1fr 1fr}.profile-buttons{grid-column:1/-1}}
+@media(max-width:480px){.profile-controls{grid-template-columns:1fr}}
 </style></head>
 <body>
 <header><div class="wrap"><h1>📺 Our TV Show Shelf</h1><p>A shared watchlist with a rating from each kid.</p></div></header>
@@ -81,7 +86,7 @@ $("exportButton").addEventListener("click",()=>{const blob=new Blob([JSON.string
 $("importButton").addEventListener("click",()=>$("importFile").click());
 $("importFile").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{const imported=validState(JSON.parse(await file.text()));if(!confirm("Replace the current list and ratings with "+imported.shows.length+" shows from "+file.name+"?"))return;state=imported;save();render();$("pickResult").textContent="";$("dataMessage").textContent="Imported "+state.shows.length+" shows successfully."}catch(err){alert("Could not import JSON: "+err.message)}finally{e.target.value=""}});
 $("pickButton").addEventListener("click",()=>{const min=Number($("threshold").value),eligible=state.shows.filter(s=>{const a=average(s);return a!==null&&a>=min&&s.watched!=="Completed"});if(!eligible.length){$("pickResult").innerHTML='<div class="pickresult">No shows meet that rating yet.<small>Try a lower threshold or rate a few more shows.</small></div>';return}const chosen=eligible[Math.floor(Math.random()*eligible.length)],a=average(chosen);$("pickResult").innerHTML='<div class="pickresult">🍿 '+escapeHTML(chosen.title)+'<small>'+escapeHTML(chosen.category)+' · '+a.toFixed(1)+' / 5 average · '+eligible.length+' eligible '+(eligible.length===1?"show":"shows")+'</small></div>'});
-initialize().then(render);
+window.appReady = initialize().then(render);
 </script><!-- GitHub Pages redeploy trigger: 2026-11-07 -->
 
 <style>.watch-control{margin-top:10px;display:flex;gap:8px;align-items:center;color:#6f6b83;font-size:.85rem}.watch-control select{max-width:145px;padding:6px}.suggestion-note{color:#6f6b83;font-size:.85rem}</style>
@@ -107,7 +112,7 @@ initialize().then(render);
   }
  };
  const add=document.getElementById("addForm");add.addEventListener("submit",()=>setTimeout(renderSuggestions,0));
- initialize();
+ window.appReady = initialize();
 })();
 </script>
 <script src="./catalog.js"></script>
@@ -251,4 +256,5 @@ initialize().then(render);
   });
 })();
 </script>
+<script src="./profiles.js"></script>
 </body></html>
