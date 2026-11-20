@@ -51,7 +51,7 @@ function validState(data){
  if(!data||!Array.isArray(data.kids)||data.kids.length!==2||!Array.isArray(data.shows))throw new Error("Expected a JSON object with two kids and a shows array.");
  const shows=data.shows.map((s,i)=>{
   if(!s||typeof s.title!=="string"||!s.title.trim()||typeof s.category!=="string"||!Array.isArray(s.ratings)||s.ratings.length!==2||s.ratings.some(n=>!Number.isInteger(n)||n<0||n>5))throw new Error("Show "+(i+1)+" has invalid data. Each show needs a title, category, and two ratings from 0 to 5.");
-  return {id:Number.isFinite(Number(s.id))?Number(s.id):Date.now()+i,title:s.title.trim(),category:s.category.trim()||"Other",ratings:[...s.ratings]};
+  return {id:Number.isFinite(Number(s.id))?Number(s.id):Date.now()+i,title:s.title.trim(),category:s.category.trim()||"Other",ratings:[...s.ratings],watched:["Unwatched","Watching","Completed"].includes(s.watched)?s.watched:"Unwatched"};
  });
  return {kids:data.kids.map((k,i)=>String(k||"Kid "+(i+1)).slice(0,24)),shows};
 }
