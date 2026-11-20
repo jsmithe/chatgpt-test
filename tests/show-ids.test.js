@@ -215,3 +215,57 @@ test("import replaces out-of-range and non-integer IDs without changing valid ID
   assert.deepEqual(shows.slice(0, invalidShows.length).map(({ id, ...show }) => show),
     invalidShows.map(({ id, ...show }) => show));
 });
+
+test("suggestions deduplicate imported shows before applying the limit and keep profiles independent", async () => {
+  const seed = JSON.parse(readFileSync(require.resolve("../shows.json"), "utf8"));
+  const shelf = await startShelf({}, seed);
+  const suggestions = shelf.element("suggestions");
+  const mode = shelf.element("suggestMode");
+  const selector = shelf.element("activeProfile");
+  const titles = () => [...suggestions.innerHTML.matchAll(/<h3>([^<]+)<\/h3>/g)].map(match => match[1]);
+  async function selectMode(value) {
+    mode.value = value;
+    await mode.dispatch("change");
+  }
+  async function switchProfile(id) {
+    selector.value = id;
+    await selector.dispatch("change");
+  }
+
+  const [first, second] = shelf.backup().profiles;
+  for (const profile of [first, second]) {
+    await switchProfile(profile.id);
+    for (const value of ["favorites", "unrated", "category"]) {
+      await selectMode(value);
+      assert.equal(new Set(titles()).size, titles().length);
+    }
+  }
+
+  const data = profileBackup(
+    { id: 1, title: "Bluey", category: "Animation", rating: 5 },
+    { id: 1, title: "Bluey", category: "Animation", rating: 4 },
+    { id: 6, title: "Bluey", category: "Animation", rating: 3, watched: "Completed" },
+    { id: 2, title: "Wild Kratts", category: "Nature", rating: 3 },
+    { id: 3, title: "Wild Kratts", category: "Other", rating: 2 },
+    { id: 4, title: "Pokémon", category: "Adventure" },
+    { id: 5, title: "Pokémon", category: "Adventure" }
+  );
+  data.profiles.push({ id: "kid-b", name: "B", shows: [
+    { id: 1, title: "Bluey", category: "Animation" },
+    { id: 2, title: "Bluey", category: "Animation" }
+  ] });
+  await shelf.importBackup(data);
+  shelf.element("suggestCount").value = "3";
+  await selectMode("favorites");
+  assert.deepEqual(titles(), ["Bluey", "Wild Kratts", "Wild Kratts"]);
+  assert.match(suggestions.innerHTML, /5 out of 5 stars/);
+  assert.doesNotMatch(suggestions.innerHTML, /4 out of 5 stars/);
+  await selectMode("unrated");
+  assert.deepEqual(titles(), ["Pokémon"]);
+  await selectMode("category");
+  assert.deepEqual(titles(), ["Bluey", "Wild Kratts", "Wild Kratts"]);
+  await switchProfile("kid-b");
+  await selectMode("unrated");
+  assert.deepEqual(titles(), ["Bluey"]);
+  assert.deepEqual(shelf.backup().profiles.map(profile => profile.shows.length), [7, 2]);
+});
