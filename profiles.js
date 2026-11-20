@@ -7,7 +7,12 @@
   let activeId = "";
   let nextId = 1;
 
-  const makeId = () => "kid-" + Date.now().toString(36) + "-" + (nextId++).toString(36);
+  const makeId = () => {
+    let id;
+    do { id = "kid-" + Date.now().toString(36) + "-" + (nextId++).toString(36); }
+    while (profiles.some(profile => profile.id === id));
+    return id;
+  };
   const currentProfile = () => profiles.find(profile => profile.id === activeId) || profiles[0];
 
   function normalizeShow(show, rating) {
@@ -119,10 +124,14 @@
           rating, watched: ["Unwatched", "Watching", "Completed"].includes(show.watched) ? show.watched : "Unwatched"
         };
       });
-      return { id: typeof profile.id === "string" && profile.id ? profile.id : makeId(), name, shows };
+      return { id: profile.id === undefined ? makeId() : profile.id, name, shows };
     });
     const names = parsed.map(profile => profile.name.toLocaleLowerCase());
     if (new Set(names).size !== names.length) throw new Error("Profile names must be unique.");
+    const ids = parsed.map(profile => profile.id);
+    if (ids.some(id => typeof id !== "string" || !id.trim()) || new Set(ids).size !== ids.length) {
+      throw new Error("Profile IDs must be nonblank and unique.");
+    }
     return parsed;
   }
 
@@ -307,10 +316,10 @@
 
   // Save changes from legacy controls and the catalog's add-to-collection integration.
   document.getElementById("cards").addEventListener("click", () => {
-    window.setTimeout(() => { persist(); renderSuggestions(); }, 0);
+    window.setTimeout(renderSuggestions, 0);
   });
   document.getElementById("addForm").addEventListener("submit", () => {
-    window.setTimeout(() => { persist(); renderSuggestions(); }, 0);
+    window.setTimeout(renderSuggestions, 0);
   });
   if (window.showShelf) {
     const addShow = window.showShelf.addShow;
