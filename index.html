@@ -10,6 +10,7 @@ header{padding:34px 20px 28px;background:linear-gradient(120deg,#39327f,#7462c9)
 main{padding:24px 0 60px}.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:20px;box-shadow:0 8px 28px #382b7010}h2{font-size:1.15rem;margin:0 0 14px}
 .kids{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field label{display:block;font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:5px}
 input,select,button{font:inherit}input,select{width:100%;border:1px solid #dcd7eb;border-radius:10px;padding:10px 11px;background:#fff;color:var(--ink)}
+.show-search{display:flex;gap:8px;min-width:0}.show-search input{flex:1;min-width:0}.show-search button{flex:none}
 .toolbar{display:grid;grid-template-columns:1fr 190px;gap:12px;margin-bottom:16px}.formgrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}.actions{display:flex;align-items:end}
 button{border:0;border-radius:10px;padding:11px 16px;background:var(--purple);color:white;font-weight:700;cursor:pointer}button:hover{filter:brightness(1.08)}button.secondary{background:#eeeafb;color:#51449e}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px}.card{border:1px solid var(--line);border-radius:15px;padding:16px;background:linear-gradient(160deg,#fff,#fcfbff)}
@@ -42,7 +43,7 @@ button{border:0;border-radius:10px;padding:11px 16px;background:var(--purple);co
 
 <section class="panel"><h2>💡 Suggestions</h2><p>Recommendations based on your kids’ ratings and watch status.</p><div class="toolbar"><select id="suggestMode"><option value="family">Family favorites</option><option value="discover">Not rated by both kids</option><option value="kid1">Kid 1 favorites</option><option value="kid2">Kid 2 favorites</option><option value="category">Favorite categories</option></select><select id="suggestCount"><option>3</option><option selected>5</option><option>10</option></select></div><div id="suggestions" class="cards"></div></section>
 <section class="panel"><h2>Back up or restore your list</h2><p>Export downloads your current shows and ratings as JSON. Import loads a JSON backup into this browser. To save a backup in GitHub, commit the exported file as <code>shows.json</code> in the repository.</p><div class="buttonrow"><button id="exportButton" type="button">⬇ Export JSON</button><button id="importButton" class="secondary" type="button">⬆ Import JSON</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p id="dataMessage" class="foot" aria-live="polite"></p></section>
-<section class="panel"><h2>Our shows</h2><div class="toolbar"><input id="search" type="search" placeholder="Search shows…"><select id="filter"><option value="">All categories</option></select></div><div id="cards" class="cards"></div><p class="foot">Ratings are 1–5 stars. The average includes only kids who have rated that show.</p></section>
+<section class="panel"><h2>Our shows</h2><div class="toolbar"><div class="show-search"><input id="search" type="search" aria-label="Search shows" placeholder="Search shows…"><button id="clearSearch" type="button" class="secondary" aria-label="Clear show search" hidden>Clear</button></div><select id="filter"><option value="">All categories</option></select></div><div id="cards" class="cards"></div><p class="foot">Ratings are 1–5 stars. The average includes only kids who have rated that show.</p></section>
 </main>
 <script>
 const KEY="tv-show-shelf-v1";
@@ -92,6 +93,7 @@ function render(){
  const cats=[...new Set(state.shows.map(s=>s.category))].sort(),old=$("filter").value;
  $("filter").innerHTML='<option value="">All categories</option>'+cats.map(c=>'<option value="'+escapeHTML(c)+'">'+escapeHTML(c)+'</option>').join("");$("filter").value=cats.includes(old)?old:"";
  const q=$("search").value.toLowerCase(),cat=$("filter").value;
+ $("clearSearch").hidden=q==="";
  const shows=state.shows.filter(s=>s.title.toLowerCase().includes(q)&&(!cat||s.category===cat));
  $("cards").innerHTML=shows.length?shows.map(s=>{
  const avg=average(s),avgText=avg===null?"—":avg.toFixed(1);
@@ -104,7 +106,14 @@ function render(){
 $("addForm").addEventListener("submit",e=>{e.preventDefault();const title=$("title").value.trim();if(!title)return;if(state.shows.some(s=>s.title.toLowerCase()===title.toLowerCase())){alert("That show is already on your list.");return}state.shows.push({id:newShowId(),title,category:$("category").value,ratings:[0,0]});$("title").value="";save();render()});
 ["kid1","kid2"].forEach((id,i)=>$(id).addEventListener("change",()=>{state.kids[i]=$(id).value.trim()||"Kid "+(i+1);save();render()}));
 $("cards").addEventListener("click",e=>{const b=e.target.closest("button[data-id]");if(!b)return;const s=state.shows.find(x=>x.id===Number(b.dataset.id));if(!s)return;const i=Number(b.dataset.kid),v=Number(b.dataset.value);s.ratings[i]=s.ratings[i]===v?0:v;save();render()});
-$("search").addEventListener("input",render);$("filter").addEventListener("change",render);
+$("search").addEventListener("input",render);
+$("clearSearch").addEventListener("click",()=>{
+ const search=$("search");
+ search.value="";
+ search.focus();
+ render();
+});
+$("filter").addEventListener("change",render);
 $("exportButton").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(state,null,2)+"\n"],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="shows.json";a.click();URL.revokeObjectURL(url);$("dataMessage").textContent="Downloaded shows.json. Commit this file to the repository to save a source-controlled snapshot."});
 $("importButton").addEventListener("click",()=>$("importFile").click());
 $("importFile").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{const imported=validState(JSON.parse(await file.text()));if(!confirm("Replace the current list and ratings with "+imported.shows.length+" shows from "+file.name+"?"))return;state=imported;save();render();$("pickResult").textContent="";$("dataMessage").textContent="Imported "+state.shows.length+" shows successfully."}catch(err){alert("Could not import JSON: "+err.message)}finally{e.target.value=""}});
