@@ -195,8 +195,17 @@
       return { show, score, reason };
     }).filter(item => item.score >= 0 && item.show.watched !== "Completed");
     shows.sort((a, b) => b.score - a.score || a.show.title.localeCompare(b.show.title));
-    document.getElementById("suggestions").innerHTML = shows.length
-      ? shows.slice(0, count).map(item =>
+    // Imported copies can have different row IDs. Use the show information
+    // available in backups, keeping same-title shows in different categories.
+    const seen = new Set();
+    const uniqueShows = shows.filter(({ show }) => {
+      const key = JSON.stringify([show.title.trim().toLowerCase(), show.category.trim().toLowerCase()]);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    document.getElementById("suggestions").innerHTML = uniqueShows.length
+      ? uniqueShows.slice(0, count).map(item =>
         '<article class="card"><h3>' + escapeHTML(item.show.title) + '</h3><span class="tag">' +
         escapeHTML(item.show.category) + '</span><p class="suggestion-note">' +
         escapeHTML(item.reason) + ' · ' + escapeHTML(item.show.watched || "Unwatched") +
