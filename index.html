@@ -13,6 +13,7 @@ input,select,button{font:inherit}input,select{width:100%;border:1px solid #dcd7e
 .toolbar{display:grid;grid-template-columns:1fr 190px;gap:12px;margin-bottom:16px}.formgrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}.actions{display:flex;align-items:end}
 button{border:0;border-radius:10px;padding:11px 16px;background:var(--purple);color:white;font-weight:700;cursor:pointer}button:hover{filter:brightness(1.08)}button.secondary{background:#eeeafb;color:#51449e}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px}.card{border:1px solid var(--line);border-radius:15px;padding:16px;background:linear-gradient(160deg,#fff,#fcfbff)}
+.remove-show{margin-top:12px}
 .cardtop{display:flex;justify-content:space-between;gap:10px;align-items:start}.card h3{margin:0;font-size:1.08rem}.tag{background:#f0edff;color:#55469e;padding:4px 9px;border-radius:99px;font-size:.75rem;white-space:nowrap}
 .rating{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;margin-top:13px;font-size:.9rem}.stars{display:flex;gap:2px}.star{background:none;color:#d4cfe2;padding:0 2px;font-size:1.35rem;line-height:1}.star.on{color:#f3ad32}
 .average{margin-top:13px;padding-top:10px;border-top:1px solid var(--line);font-weight:700;display:flex;justify-content:space-between}.average small{font-weight:500;color:var(--muted)}
@@ -96,7 +97,8 @@ function render(){
  const avg=average(s),avgText=avg===null?"—":avg.toFixed(1);
  return '<article class="card" data-show-id="'+s.id+'"><div class="cardtop"><h3>'+escapeHTML(s.title)+'</h3><span class="tag">'+escapeHTML(s.category)+'</span></div>'+
  s.ratings.map((v,i)=>'<div class="rating"><span>'+escapeHTML(state.kids[i])+'</span><span class="stars" aria-label="'+(v||"Not rated")+' out of 5">'+[1,2,3,4,5].map(n=>'<button class="star '+(n<=v?"on":"")+'" data-id="'+s.id+'" data-kid="'+i+'" data-value="'+n+'" aria-label="Rate '+escapeHTML(s.title)+' '+n+' stars">★</button>').join("")+'</span></div>').join("")+
- '<div class="average"><span>Average rating</span><span>'+avgText+(avg!==null?'<small> / 5</small>':'')+'</span></div></article>';
+ '<div class="average"><span>Average rating</span><span>'+avgText+(avg!==null?'<small> / 5</small>':'')+'</span></div>'+
+ '<button type="button" class="secondary remove-show" data-remove-show="'+s.id+'" aria-label="Remove '+escapeHTML(s.title)+'">Remove</button></article>';
  }).join(""):'<div class="empty">No shows found. Add one above to get started.</div>';
 }
 $("addForm").addEventListener("submit",e=>{e.preventDefault();const title=$("title").value.trim();if(!title)return;if(state.shows.some(s=>s.title.toLowerCase()===title.toLowerCase())){alert("That show is already on your list.");return}state.shows.push({id:newShowId(),title,category:$("category").value,ratings:[0,0]});$("title").value="";save();render()});

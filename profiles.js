@@ -315,8 +315,21 @@
   }, true);
 
   // Save changes from legacy controls and the catalog's add-to-collection integration.
-  document.getElementById("cards").addEventListener("click", () => {
-    window.setTimeout(renderSuggestions, 0);
+  document.getElementById("cards").addEventListener("click", event => {
+    const button = event.target.closest("button[data-remove-show]");
+    if (!button) {
+      window.setTimeout(renderSuggestions, 0);
+      return;
+    }
+    const index = state.shows.findIndex(show => show.id === Number(button.dataset.removeShow));
+    if (index === -1) return;
+    const show = state.shows[index];
+    if (!window.confirm("Remove " + show.title + " from " + currentProfile().name + "'s collection?")) return;
+    state.shows.splice(index, 1);
+    persist();
+    renderProfile();
+    document.getElementById("pickResult").textContent = "";
+    document.getElementById("search").focus();
   });
   document.getElementById("addForm").addEventListener("submit", () => {
     window.setTimeout(renderSuggestions, 0);
