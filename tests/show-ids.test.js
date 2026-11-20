@@ -193,3 +193,25 @@ test("saved versioned profiles keep valid numeric IDs and repair old duplicates"
   assert.deepEqual(second, { ...data.profiles[0].shows[1], id: second.id });
   assert.equal(new Set(repaired.profiles[0].shows.map(show => show.id)).size, 3);
 });
+
+test("import replaces out-of-range and non-integer IDs without changing valid IDs or show data", async () => {
+  const shelf = await startShelf();
+  const invalidIds = [-1, 0, 1.5, "2.5", Number.MAX_SAFE_INTEGER + 1, "9007199254740993"];
+  const invalidShows = invalidIds.map((id, index) => ({
+    id, title: "Show " + index, category: "Nature", rating: 4, watched: "Watching"
+  }));
+  const data = profileBackup(
+    ...invalidShows,
+    { id: 1, title: "Reserved ID" },
+    { id: String(Number.MAX_SAFE_INTEGER), title: "Largest safe ID" }
+  );
+  await shelf.importBackup(data);
+  const shows = shelf.backup().profiles[0].shows;
+  const ids = shows.map(show => show.id);
+  assert.equal(ids.length, invalidIds.length + 2);
+  assert.equal(new Set(ids).size, ids.length);
+  assert.ok(ids.every(id => Number.isSafeInteger(id) && id > 0));
+  assert.deepEqual(ids.slice(-2), [1, Number.MAX_SAFE_INTEGER]);
+  assert.deepEqual(shows.slice(0, invalidShows.length).map(({ id, ...show }) => show),
+    invalidShows.map(({ id, ...show }) => show));
+});

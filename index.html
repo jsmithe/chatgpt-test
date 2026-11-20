@@ -60,7 +60,7 @@ function normalizeShowIds(shows){
  const seen=new Set();
  return shows.map((show,index)=>{
   const id=ids[index];
-  if(!Number.isFinite(id)||seen.has(id))return {...show,id:replacements.next().value};
+  if(!Number.isSafeInteger(id)||id<=0||seen.has(id))return {...show,id:replacements.next().value};
   seen.add(id);
   return {...show,id};
  });
