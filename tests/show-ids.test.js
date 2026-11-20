@@ -10,17 +10,20 @@ const profileScript = readFileSync(require.resolve("../profiles.js"), "utf8");
 const legacyKey = "tv-show-shelf-v1";
 const profileKey = "tv-show-shelf-profiles-v1";
 
-async function startShelf(saved = {}, seed = null) {
+async function startShelf(saved = {}, seed = null, confirm = () => true) {
   const storage = new Map(Object.entries(saved));
   const elements = new Map();
   const alerts = [];
   let cards = [];
+  let exported;
   function makeElement() {
     return {
       value: "",
       dataset: {},
       children: [],
       listeners: new Map(),
+      focus() { this.focused = true; },
+      click() {},
       append(child) { this.children.push(child); },
       querySelector() { return null; },
       addEventListener(type, handler, capture) {
@@ -54,7 +57,8 @@ async function startShelf(saved = {}, seed = null) {
   const context = {
     Date: FixedDate, console,
     alert: message => alerts.push(message),
-    confirm: () => true,
+    confirm, Blob,
+    URL: { createObjectURL(blob) { exported = blob; return "blob:backup"; }, revokeObjectURL() {} },
     setTimeout() {},
     fetch: async () => ({ ok: seed !== null, json: async () => seed }),
     document: {
@@ -74,6 +78,10 @@ async function startShelf(saved = {}, seed = null) {
   return {
     element, storage, alerts,
     backup: () => JSON.parse(storage.get(profileKey)),
+    async exportBackup() {
+      await element("exportButton").dispatch("click");
+      return JSON.parse(await exported.text());
+    },
     addFromCatalog: title => context.showShelf.addShow({ title }),
     async importBackup(data) {
       element("importFile").files = [{ name: "backup.json", text: async () => JSON.stringify(data) }];
@@ -96,6 +104,60 @@ function profileBackup(...shows) {
     profiles: [{ id: "kid-a", name: "A", shows }]
   };
 }
+
+test("confirmed removal updates the active profile, filters, suggestions, and exported data", async () => {
+  let acceptRemoval = false;
+  const prompts = [];
+  const data = profileBackup(
+    { id: 1, title: "Bluey", category: "Animation", rating: 5, watched: "Watching" },
+    { id: 2, title: "Bluey", category: "Other", rating: 2, watched: "Completed" }
+  );
+  data.profiles.push({ id: "kid-b", name: "B", shows: [data.profiles[0].shows[0]] });
+  const shelf = await startShelf({ [profileKey]: JSON.stringify(data) }, null, message => {
+    prompts.push(message);
+    return acceptRemoval;
+  });
+  const cards = shelf.element("cards");
+  const mode = shelf.element("suggestMode");
+  mode.value = "favorites";
+  await mode.dispatch("change");
+  assert.match(shelf.element("suggestions").innerHTML, /Bluey/);
+  assert.match(cards.innerHTML, /data-remove-show="1" aria-label="Remove Bluey"/);
+  const filter = shelf.element("filter");
+  filter.value = "Animation";
+  await filter.dispatch("change");
+  const remove = () => cards.dispatch("click", {
+    target: {
+      closest: selector => selector === "button[data-remove-show]" ? { dataset: { removeShow: "1" } } : null
+    }
+  });
+  await remove();
+  assert.equal(shelf.backup().profiles[0].shows.length, 2);
+  assert.match(cards.innerHTML, /data-remove-show="1"/);
+  assert.match(prompts[0], /Bluey.*A's collection/);
+
+  acceptRemoval = true;
+  const picker = shelf.element("pickResult");
+  picker.textContent = "Bluey";
+  await remove();
+  assert.doesNotMatch(cards.innerHTML, /data-remove-show="1"/);
+  assert.match(cards.innerHTML, /data-remove-show="2"/);
+  assert.equal(filter.value, "");
+  assert.doesNotMatch(filter.innerHTML, /Animation/);
+  assert.doesNotMatch(shelf.element("suggestions").innerHTML, /Bluey/);
+  assert.equal(picker.textContent, "");
+  assert.equal(shelf.element("search").focused, true);
+  const saved = shelf.backup();
+  assert.deepEqual(saved.profiles[0].shows, [data.profiles[0].shows[1]]);
+  assert.deepEqual(saved.profiles[1].shows, data.profiles[1].shows);
+  const reloaded = await startShelf(Object.fromEntries(shelf.storage));
+  assert.deepEqual(reloaded.backup(), saved);
+
+  const exported = await shelf.exportBackup();
+  const imported = await startShelf();
+  await imported.importBackup(exported);
+  assert.deepEqual(imported.backup(), saved);
+});
 
 test("rapid manual and catalog additions get distinct IDs and rate independently", async () => {
   const shelf = await startShelf();
