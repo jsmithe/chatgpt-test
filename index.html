@@ -47,13 +47,34 @@ button{border:0;border-radius:10px;padding:11px 16px;background:var(--purple);co
 const KEY="tv-show-shelf-v1";
 let state;
 const $=id=>document.getElementById(id);
+// Allocate within a collection, keeping IDs numeric for existing backups and controls.
+function* unusedShowIds(usedIds){
+ for(let id=1;;id++){
+  if(!usedIds.has(id))yield id;
+ }
+}
+function normalizeShowIds(shows){
+ const ids=shows.map(({id})=>typeof id==="string"&&id.trim()?Number(id):id);
+ // Reserve all valid IDs before repairing entries so later shows keep their IDs.
+ const replacements=unusedShowIds(new Set(ids));
+ const seen=new Set();
+ return shows.map((show,index)=>{
+  const id=ids[index];
+  if(!Number.isFinite(id)||seen.has(id))return {...show,id:replacements.next().value};
+  seen.add(id);
+  return {...show,id};
+ });
+}
+function newShowId(){
+ return unusedShowIds(new Set(state.shows.map(show=>show.id))).next().value;
+}
 function validState(data){
  if(!data||!Array.isArray(data.kids)||data.kids.length!==2||!Array.isArray(data.shows))throw new Error("Expected a JSON object with two kids and a shows array.");
  const shows=data.shows.map((s,i)=>{
   if(!s||typeof s.title!=="string"||!s.title.trim()||typeof s.category!=="string"||!Array.isArray(s.ratings)||s.ratings.length!==2||s.ratings.some(n=>!Number.isInteger(n)||n<0||n>5))throw new Error("Show "+(i+1)+" has invalid data. Each show needs a title, category, and two ratings from 0 to 5.");
-  return {id:Number.isFinite(Number(s.id))?Number(s.id):Date.now()+i,title:s.title.trim(),category:s.category.trim()||"Other",ratings:[...s.ratings],watched:["Unwatched","Watching","Completed"].includes(s.watched)?s.watched:"Unwatched"};
+  return {id:s.id,title:s.title.trim(),category:s.category.trim()||"Other",ratings:[...s.ratings],watched:["Unwatched","Watching","Completed"].includes(s.watched)?s.watched:"Unwatched"};
  });
- return {kids:data.kids.map((k,i)=>String(k||"Kid "+(i+1)).slice(0,24)),shows};
+ return {kids:data.kids.map((k,i)=>String(k||"Kid "+(i+1)).slice(0,24)),shows:normalizeShowIds(shows)};
 }
 async function initialize(){
  try{const saved=localStorage.getItem(KEY);if(saved){state=validState(JSON.parse(saved));return}}
@@ -73,12 +94,12 @@ function render(){
  const shows=state.shows.filter(s=>s.title.toLowerCase().includes(q)&&(!cat||s.category===cat));
  $("cards").innerHTML=shows.length?shows.map(s=>{
  const avg=average(s),avgText=avg===null?"—":avg.toFixed(1);
- return '<article class="card"><div class="cardtop"><h3>'+escapeHTML(s.title)+'</h3><span class="tag">'+escapeHTML(s.category)+'</span></div>'+
+ return '<article class="card" data-show-id="'+s.id+'"><div class="cardtop"><h3>'+escapeHTML(s.title)+'</h3><span class="tag">'+escapeHTML(s.category)+'</span></div>'+
  s.ratings.map((v,i)=>'<div class="rating"><span>'+escapeHTML(state.kids[i])+'</span><span class="stars" aria-label="'+(v||"Not rated")+' out of 5">'+[1,2,3,4,5].map(n=>'<button class="star '+(n<=v?"on":"")+'" data-id="'+s.id+'" data-kid="'+i+'" data-value="'+n+'" aria-label="Rate '+escapeHTML(s.title)+' '+n+' stars">★</button>').join("")+'</span></div>').join("")+
  '<div class="average"><span>Average rating</span><span>'+avgText+(avg!==null?'<small> / 5</small>':'')+'</span></div></article>';
  }).join(""):'<div class="empty">No shows found. Add one above to get started.</div>';
 }
-$("addForm").addEventListener("submit",e=>{e.preventDefault();const title=$("title").value.trim();if(!title)return;if(state.shows.some(s=>s.title.toLowerCase()===title.toLowerCase())){alert("That show is already on your list.");return}state.shows.push({id:Date.now(),title,category:$("category").value,ratings:[0,0]});$("title").value="";save();render()});
+$("addForm").addEventListener("submit",e=>{e.preventDefault();const title=$("title").value.trim();if(!title)return;if(state.shows.some(s=>s.title.toLowerCase()===title.toLowerCase())){alert("That show is already on your list.");return}state.shows.push({id:newShowId(),title,category:$("category").value,ratings:[0,0]});$("title").value="";save();render()});
 ["kid1","kid2"].forEach((id,i)=>$(id).addEventListener("change",()=>{state.kids[i]=$(id).value.trim()||"Kid "+(i+1);save();render()}));
 $("cards").addEventListener("click",e=>{const b=e.target.closest("button[data-id]");if(!b)return;const s=state.shows.find(x=>x.id===Number(b.dataset.id));if(!s)return;const i=Number(b.dataset.kid),v=Number(b.dataset.value);s.ratings[i]=s.ratings[i]===v?0:v;save();render()});
 $("search").addEventListener("input",render);$("filter").addEventListener("change",render);
@@ -95,7 +116,7 @@ window.appReady = initialize().then(render);
  const oldValid=validState;
  validState=function(data){const v=oldValid(data);v.shows.forEach(s=>{if(!["Unwatched","Watching","Completed"].includes(s.watched))s.watched="Unwatched"});return v};
  const originalRender=render;
- render=function(){originalRender();document.querySelectorAll("#cards .card").forEach(card=>{const title=card.querySelector("h3")?.textContent;const show=state.shows.find(s=>s.title===title);if(!show||card.querySelector(".watch-control"))return;const row=document.createElement("label");row.className="watch-control";row.textContent="Watch status";const select=document.createElement("select");["Unwatched","Watching","Completed"].forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;o.selected=(show.watched||"Unwatched")===v;select.append(o)});select.addEventListener("change",()=>{show.watched=select.value;save();renderSuggestions()});row.append(select);card.append(row)})};
+ render=function(){originalRender();document.querySelectorAll("#cards .card").forEach(card=>{const show=state.shows.find(s=>s.id===Number(card.dataset.showId));if(!show||card.querySelector(".watch-control"))return;const row=document.createElement("label");row.className="watch-control";row.textContent="Watch status";const select=document.createElement("select");["Unwatched","Watching","Completed"].forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;o.selected=(show.watched||"Unwatched")===v;select.append(o)});select.addEventListener("change",()=>{show.watched=select.value;save();renderSuggestions()});row.append(select);card.append(row)})};
  window.renderSuggestions=function(){const mode=document.getElementById("suggestMode").value,n=Number(document.getElementById("suggestCount").value);let rows=state.shows.map(s=>{const vals=s.ratings.filter(x=>x>0),avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;let score=-1,reason="";if(mode==="family"){score=avg?avg*20+(vals.length===2?8:0):-1;reason=avg.toFixed(1)+" average rating"}if(mode==="discover"){score=s.ratings.filter(x=>x===0).length===2?100:s.ratings.some(x=>x===0)?70:-1;reason="Not yet rated by "+(s.ratings.every(x=>x===0)?"either kid":"one kid")}if(mode==="kid1"||mode==="kid2"){const x=s.ratings[mode==="kid1"?0:1];score=x?x*20:-1;reason=x+" stars"}if(mode==="category"){const peers=state.shows.filter(x=>x.category===s.category).flatMap(x=>x.ratings).filter(x=>x>0);score=peers.length?peers.reduce((a,b)=>a+b,0)/peers.length*20:-1;reason="Category average "+(score/20).toFixed(1)}return {s,score,reason}}).filter(x=>x.score>=0&&x.s.watched!=="Completed");rows.sort((a,b)=>b.score-a.score);document.getElementById("suggestions").innerHTML=rows.length?rows.slice(0,n).map(x=>'<article class="card"><h3>'+escapeHTML(x.s.title)+'</h3><span class="tag">'+escapeHTML(x.s.category)+'</span><p class="suggestion-note">'+escapeHTML(x.reason)+' · '+escapeHTML(x.s.watched||"Unwatched")+'</p></article>').join(""):'<p class="empty">No suggestions yet. Add ratings or shows to get started.</p>'};
  document.getElementById("suggestMode").addEventListener("change",renderSuggestions);document.getElementById("suggestCount").addEventListener("change",renderSuggestions);
  const oldSave=save;save=function(){state.shows.forEach(s=>{if(!s.watched)s.watched="Unwatched"});oldSave()};
@@ -104,7 +125,7 @@ window.appReady = initialize().then(render);
   addShow(show) {
    if(!show||typeof show.title!=="string"||!show.title.trim()) throw new Error("A show title is required.");
    if(state.shows.some(item=>item.title.toLocaleLowerCase()===show.title.trim().toLocaleLowerCase())) return {added:false,reason:"duplicate"};
-   state.shows.push({id:Date.now(),title:show.title.trim(),category:show.category||"Other",ratings:[0,0],watched:"Unwatched"});
+   state.shows.push({id:newShowId(),title:show.title.trim(),category:show.category||"Other",ratings:[0,0],watched:"Unwatched"});
    save();
    render();
    renderSuggestions();

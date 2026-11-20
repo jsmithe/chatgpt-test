@@ -17,7 +17,7 @@
 
   function normalizeShow(show, rating) {
     return {
-      id: Number.isFinite(Number(show.id)) ? Number(show.id) : Date.now() + Math.floor(Math.random() * 1000),
+      id: show.id,
       title: String(show.title || "").trim(),
       category: String(show.category || "Other"),
       ratings: [Number.isInteger(Number(rating)) && Number(rating) >= 0 && Number(rating) <= 5 ? Number(rating) : 0, 0],
@@ -119,12 +119,12 @@
           throw new Error("A rating in profile " + name + " must be a whole number from 0 to 5.");
         }
         return {
-          id: Number.isFinite(Number(show.id)) ? Number(show.id) : Date.now() + showIndex,
+          id: show.id,
           title: show.title.trim(), category: String(show.category || "Other"),
           rating, watched: ["Unwatched", "Watching", "Completed"].includes(show.watched) ? show.watched : "Unwatched"
         };
       });
-      return { id: profile.id === undefined ? makeId() : profile.id, name, shows };
+      return { id: profile.id === undefined ? makeId() : profile.id, name, shows: normalizeShowIds(shows) };
     });
     const names = parsed.map(profile => profile.name.toLocaleLowerCase());
     if (new Set(names).size !== names.length) throw new Error("Profile names must be unique.");
@@ -290,7 +290,7 @@
       const data = JSON.parse(await file.text());
       let importedProfiles;
       let importedActive = "";
-      if (data && data.format === "tv-show-shelf-profiles") {
+      if (data && (data.format === "tv-show-shelf-profiles" || (data.format === undefined && data.version === 1 && Array.isArray(data.profiles)))) {
         importedProfiles = parseProfileBackup(data);
         importedActive = data.activeId;
       } else {
