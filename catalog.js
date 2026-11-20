@@ -7,6 +7,12 @@
       if (!response.ok) throw new Error("The sample catalog could not be loaded.");
       cachedCatalog = await response.json();
       if (!Array.isArray(cachedCatalog)) throw new Error("The sample catalog has an invalid format.");
+      cachedCatalog = cachedCatalog.filter(show =>
+        show && typeof show.title === "string" &&
+        typeof show.overview === "string" &&
+        Array.isArray(show.genres) &&
+        show.genres.every(genre => typeof genre === "string")
+      );
     }
     return cachedCatalog;
   }
