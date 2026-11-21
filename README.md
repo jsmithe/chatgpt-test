@@ -4,6 +4,9 @@ Our TV Show Shelf is a family-managed TV-show collection. Family members can kee
 
 The app is starting with a simple browser-based experience. The longer-term goal is to evolve the shelf into a personalized TV discovery tool that helps the family choose from its collection and find shows it has not added yet.
 
+
+> **Product direction:** See [Product vision and family viewing use cases](docs/product-vision.md) for the family-first purpose, real-world decision scenarios, UX principles, and open design questions. It guides the next UX review and may inform revisions to the roadmap.
+
 ## What the app does today
 
 - **Build a show collection:** Add TV shows with a title and category (Animation, Adventure, Comedy, Educational, Nature, Fantasy, or Other).
