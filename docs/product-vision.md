@@ -1,6 +1,29 @@
-# Product vision and family viewing use cases
+# Our Show — product vision and family viewing use cases
 
-> **Status:** Product discovery / proposed direction. This document captures the family's real-world motivation and the UX discussion behind the app. It is **not** a description of features already implemented, nor a finalized specification. Use it to guide UX review, prioritization, and implementation decisions.
+**Find something we all want to watch.**
+
+## Current direction · November 23, 2026
+
+Use this section when moving between design, planning, and implementation. The README describes the shipped app under its earlier name, *Our TV Show Shelf*. The flows below describe the intended next release.
+
+### From a new household to a first pick
+
+1. Ask “Where do you watch?” at the household level. Prime Video, Netflix, Paramount+, and YouTube are examples from the founding household. Service selection helps narrow browsing. Viewing history and subscription verification are separate capabilities.
+2. Let families recognize shows by their artwork, tap to add them, or search for a title they already know. They can start with a handful and add more over time. “Add to our shows” records a familiar option. Each viewer’s interest, ratings, and viewing history need their own evidence.
+3. Treat a YouTube channel as a pick in its own right. Choosing a channel can settle the family decision before anyone picks an individual video.
+4. Open **Tonight** to a manageable set of familiar options for the people watching. When current favorites divide the room, bring an older, unfinished show back into view. Use “Let’s watch” to choose and “Not tonight” to pass. Allow a show to return on a later night.
+5. Keep **Try something new** as a distinct discovery path for families who want it. The next design round can explore how to find an unseen show, try it now, or save it for later.
+
+### Interaction details and unresolved choices
+
+- **Artwork gallery.** When multiple images are available, swipe the image itself. Center one small pagination dot per image below it and highlight the active position. Omit dots for a single image. Expose the position to screen readers, for example “Image 2 of 3.”
+- **Who is watching.** The example household has two children. Wording and logic need to work for other group sizes. Base claims of shared interest on the participating viewers’ known preferences. Keep unknown preferences visible as uncertainty.
+- **Split votes.** The mockups explore ways to remember who wanted a passed show. The reminder interaction, copy, and timing remain open. The first implementation can test the family pick without introducing a fixed cooldown or a vote threshold.
+- **Availability.** Catalog and channel sources, regional coverage, and how to label uncertain availability remain implementation questions. Preserve existing profiles, ratings, watch states, and JSON backups as the shelf evolves.
+
+### First couch test
+
+Start with an empty shelf. Can a parent and kids gather a few familiar options without typing their whole list? Then try Tonight on an evening when the kids want different shows. Does a suggestion prompt “Oh yeah, I forgot about that one” and help them choose before the parent supplies a compromise? Record which step required help and whether the family actually chose a show.
 
 ## Why this product exists
 
@@ -115,7 +138,7 @@ Treat **unknown/unrated** as distinct from **disliked**. Allow preferences to ch
 
 **Important open questions:** Country/region, when provider data was last updated, handling unavailable/unknown availability, distinguishing included-with-subscription from renting/buying, and how to handle shows the family owns outside streaming. Do not promise authoritative live availability until a source is selected and tested.
 
-## Information architecture hypotheses (for UX exploration)
+## Earlier navigation ideas
 
 These are starting points for a redesign, **not approved wireframes**:
 
@@ -137,27 +160,6 @@ Keep the parent workflow fast and make core actions understandable to kids. Avoi
 7. **Minimal friction:** avoid unnecessary data entry or configuration before a quick pick.
 8. **Preserve existing data:** changes to ratings, profiles, or backups need explicit compatibility/migration work.
 9. **Keep the app simple:** no need for an elaborate streaming platform or episode-tracking system.
-
-## What to review before implementing a redesign
-
-- Current screens and workflows against the four user journeys above, including mobile use.
-- Whether the home page emphasizes decisions over collection administration.
-- How shared recommendations should treat conflicting preferences.
-- How to indicate a short-lived “not tonight” choice without storing it as a dislike.
-- The simplest helpful preference interaction; test thumbs vs. three choices before committing.
-- Family-level subscription selection and availability labeling.
-- How prospective external catalog results and “Want to try” appear within the new navigation.
-- Accessibility, kid-friendly language, touch targets, and parent control of destructive settings.
-
-## Suggested sequencing
-
-1. **UX audit and lightweight prototype:** Validate these use cases, flows, and layout directions before major UI work.
-2. **Agree on a simple preference model and data migration plan.** Preserve existing 1–5 star data.
-3. **Implement the redesigned core selection experience** incrementally.
-4. **Add catalog search, watch-provider information, and discovery** in a way that supports that experience.
-5. **Create Playwright browser tests** around stabilized flows; retain focused automated checks for critical behavior while redesigning.
-
-This reframes—rather than automatically replaces—the existing README roadmap. Existing phase labels and open issues should be reconciled as part of product planning.
 
 ## Decisions to make later
 
