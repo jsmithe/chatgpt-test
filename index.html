@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#312e81">
-<title>Our TV Show Shelf</title>
+<title>Our Show</title>
 <style>
 :root{color-scheme:light;--ink:#24213a;--muted:#6f6b83;--purple:#6554c0;--line:#e8e4f2}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#f4f0ff,#f9fbff 55%,#fff8ef);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
@@ -26,13 +26,47 @@ button{border:0;border-radius:10px;padding:11px 16px;background:var(--purple);co
 .profile-buttons{display:flex;gap:8px;flex-wrap:wrap}.profile-buttons button{padding:10px 12px}
 @media(max-width:760px){.profile-controls{grid-template-columns:1fr 1fr}.profile-buttons{grid-column:1/-1}}
 @media(max-width:480px){.profile-controls{grid-template-columns:1fr}}
-</style></head>
+</style>
+<link rel="stylesheet" href="./tonight.css">
+</head>
 <body>
-<header><div class="wrap"><h1>📺 Our TV Show Shelf</h1><p>A shared watchlist with a rating from each kid.</p></div></header>
-<main class="wrap">
+<header class="brand"><div class="wrap"><h1>Our Show</h1></div></header>
+<main class="wrap" id="app">
+<section id="tonightView" aria-labelledby="tonightHeading" hidden>
+  <h2 id="tonightHeading" tabindex="-1">Tonight</h2>
+  <div id="tonightPick" hidden>
+    <div id="pickArtwork" class="pick-artwork"></div>
+    <div id="artDots" class="art-dots" role="group" aria-label="Artwork images" hidden></div>
+    <span id="artPosition" class="sr-only" role="status"></span>
+    <div aria-live="polite"><h3 id="tonightTitle"></h3><p id="tonightReason"></p></div>
+    <div id="tonightActions">
+      <button type="button" id="watchTonight">Let’s watch</button>
+      <button type="button" id="passTonight">Not tonight</button>
+    </div>
+  </div>
+  <p id="tonightEmpty" role="status" hidden></p>
+  <div id="passNotice" hidden><span id="passText" role="status"></span><button type="button" id="undoPass">Undo</button></div>
+  <button type="button" id="browseFromTonight" class="secondary" hidden>Add familiar picks</button>
+</section>
+<section id="onboarding" aria-labelledby="onboardingHeading" hidden>
+  <h2 id="onboardingHeading" tabindex="-1">Add familiar picks</h2>
+  <fieldset id="watchServices"><legend>Where do you watch?</legend>
+    <label><input type="checkbox" value="Disney+"> Disney+</label>
+    <label><input type="checkbox" value="Netflix"> Netflix</label>
+    <label><input type="checkbox" value="YouTube"> YouTube</label>
+    <label><input type="checkbox" value="Other"> Other</label>
+  </fieldset>
+  <label for="familiarSearch">Search shows and YouTube channels</label>
+  <input id="familiarSearch" type="search" placeholder="Search by title" autocomplete="off">
+  <p id="familiarStatus" role="status"></p>
+  <div id="familiarResults"></div>
+  <div class="onboarding-actions"><button type="button" id="startTonight" disabled>Go to Tonight</button></div>
+</section>
+<div id="shelfView" hidden>
 <section class="panel"><h2>Who's rating?</h2><div class="kids"><div class="field"><label for="kid1">Kid one</label><input id="kid1" value="Kid 1" maxlength="24"></div><div class="field"><label for="kid2">Kid two</label><input id="kid2" value="Kid 2" maxlength="24"></div></div></section>
 <section class="panel"><h2>Add a show</h2><form id="addForm" class="formgrid"><div class="field wide"><label for="title">Show title</label><input id="title" placeholder="e.g. The Magic School Bus" required maxlength="80"></div><div class="field"><label for="category">Category</label><select id="category"><option>Animation</option><option>Adventure</option><option>Comedy</option><option>Educational</option><option>Nature</option><option>Fantasy</option><option>Other</option></select></div><div class="actions"><button type="submit">＋ Add show</button></div></form></section>
 <section class="panel" id="catalogPanel">
+  <button type="button" class="secondary" id="browseFromShelf">Browse familiar picks</button>
   <h2>🔎 Find a show to add</h2>
   <p>Search the sample catalog. These results are local demo data; no external service or API key is used.</p>
   <div class="toolbar"><input id="catalogSearch" type="search" placeholder="Search titles, descriptions, or genres…" autocomplete="off"><span id="catalogStatus" class="foot" aria-live="polite"></span></div>
@@ -44,7 +78,12 @@ button{border:0;border-radius:10px;padding:11px 16px;background:var(--purple);co
 <section class="panel"><h2>💡 Suggestions</h2><p>Recommendations based on your kids’ ratings and watch status.</p><div class="toolbar"><select id="suggestMode"><option value="family">Family favorites</option><option value="discover">Not rated by both kids</option><option value="kid1">Kid 1 favorites</option><option value="kid2">Kid 2 favorites</option><option value="category">Favorite categories</option></select><select id="suggestCount"><option>3</option><option selected>5</option><option>10</option></select></div><div id="suggestions" class="cards"></div></section>
 <section class="panel"><h2>Back up or restore your list</h2><p>Export downloads your current shows and ratings as JSON. Import loads a JSON backup into this browser. To save a backup in GitHub, commit the exported file as <code>shows.json</code> in the repository.</p><div class="buttonrow"><button id="exportButton" type="button">⬇ Export JSON</button><button id="importButton" class="secondary" type="button">⬆ Import JSON</button><input id="importFile" type="file" accept=".json,application/json" hidden></div><p id="dataMessage" class="foot" aria-live="polite"></p></section>
 <section class="panel"><h2>Our shows</h2><div class="toolbar"><div class="show-search"><input id="search" type="search" aria-label="Search shows" placeholder="Search shows…"><button id="clearSearch" type="button" class="secondary" aria-label="Clear show search" hidden>Clear</button></div><select id="filter"><option value="">All categories</option></select></div><div id="cards" class="cards"></div><p class="foot">Ratings are 1–5 stars. The average includes only kids who have rated that show.</p></section>
+</div>
 </main>
+<nav class="primary-nav" aria-label="Main navigation">
+  <button type="button" id="navTonight">Tonight</button>
+  <button type="button" id="navShelf">Shelf</button>
+</nav>
 <script>
 const KEY="tv-show-shelf-v1";
 let state;
@@ -81,7 +120,7 @@ function validState(data){
 async function initialize(){
  try{const saved=localStorage.getItem(KEY);if(saved){state=validState(JSON.parse(saved));return}}
  catch(e){console.warn("Saved browser data could not be read:",e)}
- try{const response=await fetch("./shows.json",{cache:"no-store"});if(!response.ok)throw new Error("Seed file not found");state=validState(await response.json())}
+ try{const response=await fetch("./shows.json",{cache:"no-store"});if(!response.ok)throw new Error("Seed file not found");const seed=await response.json();if(seed.demo&& !new URLSearchParams(location.search).has("demo"))throw new Error("Demo shelf is opt-in");state=validState(seed)}
  catch(e){state=validState({kids:["Kid 1","Kid 2"],shows:[]})}
  save();
 }
@@ -289,4 +328,5 @@ window.appReady = initialize().then(render);
 })();
 </script>
 <script src="./profiles.js"></script>
+<script src="./tonight.js"></script>
 </body></html>

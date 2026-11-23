@@ -1,5 +1,5 @@
 /* Flexible kid profiles with independent collections and profile-aware backups. */
-(async function () {
+window.shelfReady = (async function () {
   const PROFILE_KEY = "tv-show-shelf-profiles-v1";
   await window.appReady;
 
@@ -152,7 +152,7 @@
     activeId = profiles[0].id;
   }
 
-  const profilePanel = document.querySelector("main > .panel");
+  const profilePanel = document.querySelector("#shelfView > .panel");
   profilePanel.innerHTML =
     '<h2>Kid profiles</h2><div class="profile-controls">' +
     '<div class="field"><label for="activeProfile">Current collection</label><select id="activeProfile"></select></div>' +
@@ -344,6 +344,7 @@
     window.setTimeout(renderSuggestions, 0);
   });
   if (window.showShelf) {
+    window.showShelf.getProfiles = () => profiles.map(snapshotProfile);
     const addShow = window.showShelf.addShow;
     window.showShelf.addShow = function (show) {
       const result = addShow(show);
