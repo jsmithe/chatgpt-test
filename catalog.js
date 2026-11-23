@@ -39,6 +39,7 @@
   }
 
   window.showCatalog = {
+    browseShows: loadCatalog,
     async searchShows(query) {
       const term = String(query || "").trim().toLocaleLowerCase();
       if (!term) return [];

@@ -1,0 +1,40 @@
+:root{--forest:#173e2b;--cream:#faf6ed;--moss:#284e35;--soft:#e9eddf}
+body{background:var(--cream)}
+.brand{background:transparent;color:var(--forest);padding:19px 0 8px}
+.brand h1{font-size:1.25rem;letter-spacing:-.035em;font-weight:850}
+#app{padding-top:12px;padding-bottom:96px}
+#tonightView,#onboarding{max-width:530px;margin:auto;color:var(--forest)}
+#tonightView h2,#onboarding h2{font-size:clamp(2rem,9vw,3.25rem);line-height:1.1;letter-spacing:-.055em;margin:0 0 16px}
+#tonightView h3{font-size:clamp(1.65rem,7vw,2.65rem);letter-spacing:-.04em;line-height:1.12;margin:13px 0 4px}
+#tonightReason{margin:0 0 16px}
+.pick-artwork{aspect-ratio:1.65;overflow:hidden;border-radius:24px;touch-action:pan-y;background:#dce7d9}
+.pick-artwork img,.familiar-art img{width:100%;height:100%;display:block;object-fit:cover}
+.art-placeholder{width:100%;height:100%;display:grid;place-items:center;text-align:center;padding:12px;color:#1b4632;font-weight:800;background:radial-gradient(ellipse at 85% 5%,#f5dfad,transparent 53%),linear-gradient(145deg,#cbdcc1,#a8c9b5)}
+.pick-artwork .art-placeholder{font-size:1.65rem}
+.art-dots{display:flex;justify-content:center}
+.art-dots button{display:grid;place-items:center;width:44px;height:44px;padding:0;background:transparent}
+.art-dots button::before{content:"";width:9px;height:9px;border-radius:50%;background:#748477}
+.art-dots button[aria-current=true]::before{background:var(--forest);box-shadow:0 0 0 2px var(--cream),0 0 0 3px var(--forest)}
+#tonightActions{display:grid;gap:10px}
+#tonightActions button,.onboarding-actions button{min-height:54px;border:2px solid var(--forest);border-radius:22px;background:var(--forest);font-size:1.15rem}
+#tonightActions #passTonight{background:transparent;color:var(--forest)}
+#passNotice{margin:14px 0 0;background:var(--soft);border-radius:16px;padding:5px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+#undoPass{background:transparent;color:var(--forest);text-decoration:underline}
+#watchServices{margin:0 0 16px;border:1px solid #9bae9b;border-radius:16px;padding:10px 12px}
+#watchServices label{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-right:12px}
+#watchServices input{width:18px;height:18px;accent-color:var(--forest)}
+#familiarSearch{margin-top:5px}
+#familiarStatus{margin:8px 0;font-size:.9rem}
+#familiarResults{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.familiar-card{padding:0 0 9px;overflow:hidden;text-align:left;background:#f0ecdf;color:var(--forest);border:1px solid #d9decc}
+.familiar-card strong,.familiar-card small{display:block;padding:2px 10px}
+.familiar-art{display:block;aspect-ratio:1.55;background:#dae7d6}
+.onboarding-actions{margin-top:16px}
+.onboarding-actions button{width:100%}
+button:disabled{opacity:.65;cursor:default}
+.primary-nav{position:fixed;bottom:0;left:0;right:0;z-index:2;display:flex;justify-content:center;gap:16px;padding:8px 16px max(8px,env(safe-area-inset-bottom));border-top:1px solid #dedfce;background:var(--cream)}
+.primary-nav button{min-width:min(38vw,170px);min-height:48px;background:transparent;color:var(--forest)}
+.primary-nav button[aria-current=page]{background:var(--soft)}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#tonightHeading:focus,#onboardingHeading:focus{outline:none}
