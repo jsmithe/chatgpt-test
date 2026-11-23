@@ -8,7 +8,12 @@
       "Animation",
       "Family"
     ],
-    "posterUrl": null
+    "posterUrl": null,
+    "service": "Disney+",
+    "artwork": [
+      "./artwork/bluey-park.webp",
+      "./artwork/bluey-lake.webp"
+    ]
   },
   {
     "id": "mock-2",
@@ -118,7 +123,11 @@
       "Nature",
       "Animation"
     ],
-    "posterUrl": null
+    "posterUrl": null,
+    "service": "Netflix",
+    "artwork": [
+      "./artwork/puffin-rock.webp"
+    ]
   },
   {
     "id": "mock-12",
@@ -217,5 +226,18 @@
       "Educational"
     ],
     "posterUrl": null
+  },
+  {
+    "id": "sample-scishow",
+    "title": "SciShow Kids",
+    "overview": "Short videos about science and the world around us.",
+    "genres": [
+      "Educational"
+    ],
+    "service": "YouTube",
+    "kind": "channel",
+    "artwork": [
+      "./artwork/scishow-kids.webp"
+    ]
   }
 ]
